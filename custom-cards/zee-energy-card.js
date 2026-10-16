@@ -9,7 +9,7 @@ import "./energy-statistics.js";
 import "./energy-health-balance.js";
 import "./energy-flow-animation.js";
 import "./energy-flow-colours.js";
-import "./floating-nav-icons.js?v=5";
+import "./floating-nav-icons.js?v=6";
 import "./house-scene-base.js?v=8";
 import "./house-scene-variant-base.js?v=8";
 import "./house-scene.js";
