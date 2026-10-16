@@ -516,9 +516,72 @@ class ZeeSystem extends ZeePage {
   }
 }
 
+class ZeeEnergy extends ZeePage {
+  rows(items) {
+    return items.filter(Boolean).map(([name, id, kind]) => `<button class="prow" type="button" data-id="${esc(id)}"><span>${esc(name)}</span><strong>${esc(paramValue(this._hass, id, kind))}</strong></button>`).join("");
+  }
+  block(title, items, sub) {
+    const body = this.rows(items);
+    if (!body) return "";
+    const heading = sub ? `<div class="psub">${esc(title)}</div>` : `<h3>${esc(title)}</h3>`;
+    return `<section class="${sub ? "pgroup" : "psec"}">${heading}${body}</section>`;
+  }
+  render() {
+    if (!this._hass) return;
+    const h = this._hass;
+    const todayExport = sensorMatch(h, (id) => id.includes("goodwe") && id.includes("export") && (id.includes("today") || id.includes("daily")) && !id.includes("total") && !id.includes("meter"));
+    const pv = (n) => [
+      ["Power", `sensor.goodwe_pv${n}_power`, 0],
+      ["Voltage", `sensor.goodwe_pv${n}_voltage`, 1],
+      ["Current", `sensor.goodwe_pv${n}_current`, 1],
+    ];
+    this.shell("Energy", "Goodwe", `<div class="plist">
+      <section class="psec"><h3>PV</h3>${this.rows([["PV power", "sensor.goodwe_pv_power", 0]])}<div class="appliances">${this.block("PV1", pv(1), true)}${this.block("PV2", pv(2), true)}</div></section>
+      ${this.block("Inverter", [
+        ["Air temp", "sensor.goodwe_inverter_temperature_air", 1],
+        ["Rad temp", "sensor.goodwe_inverter_temperature_radiator", 1],
+        ["Work mode", "sensor.goodwe_work_mode", "text"],
+        ["Error", "sensor.goodwe_errors", "text"],
+      ])}
+      ${this.block("Battery", [
+        ["Power", "sensor.goodwe_battery_power", 0],
+        ["Voltage", "sensor.goodwe_battery_voltage", 1],
+        ["Current", "sensor.goodwe_battery_current", 1],
+        ["SoC", "sensor.goodwe_battery_state_of_charge", 0],
+        ["Max cell temp", "sensor.goodwe_battery_max_cell_temperature", 1],
+        ["Min cell temp", "sensor.goodwe_battery_min_cell_temperature", 1],
+        ["Max cell volt", "sensor.goodwe_battery_max_cell_voltage", 3],
+        ["Min cell volt", "sensor.goodwe_battery_min_cell_voltage", 3],
+      ])}
+      ${this.block("Grid", [
+        ["Power", "sensor.goodwe_active_power", 0],
+        ["Voltage", "sensor.goodwe_on_grid_l1_voltage", 1],
+        ["Current", "sensor.goodwe_meter_l1_current", 1],
+        ["Frequency", "sensor.goodwe_on_grid_l1_frequency", 2],
+      ])}
+      ${this.block("Statistics", [
+        ["Today generation", "sensor.goodwe_today_s_pv_generation", 2],
+        ["Total generation", "sensor.goodwe_total_pv_generation", 2],
+        ["Today load", "sensor.goodwe_today_load", 2],
+        ["Total load", "sensor.goodwe_total_load", 2],
+        ["Today grid import", "sensor.goodwe_today_energy_import", 2],
+        ["Total grid import", "sensor.goodwe_meter_total_energy_import", 2],
+        ["Today grid export", todayExport ? todayExport.entity_id : "sensor.goodwe_today_energy_export", 2],
+        ["Total grid export", "sensor.goodwe_meter_total_energy_export", 2],
+        ["Today battery charged", "sensor.goodwe_today_battery_charge", 2],
+        ["Today battery discharge", "sensor.goodwe_today_battery_discharge", 2],
+        ["Total battery charge", "sensor.goodwe_total_battery_charge", 2],
+        ["Total battery discharge", "sensor.goodwe_total_battery_discharge", 2],
+      ])}
+    </div>`, "/local/myhome-dashboard-banners/energy-v2.png");
+    this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
+  }
+}
+
 const tags = [
   ["zee-metric-board", ZeeMetrics],
   ["zee-live-parameters", ZeeLive],
+  ["zee-energy-board", ZeeEnergy],
   ["zee-cameras", ZeeCameras],
   ["zee-appliances", ZeeAppliances],
   ["zee-climate", ZeeClimate],

@@ -52,72 +52,7 @@
               }
             },
             {
-              "type": "custom:myhome-energy-overview-v6",
-              "home_path": "/dashboard-zee-energy/home"
-            },
-            {
-              "type": "custom:accent-myhome-energy-statistics-v13"
-            },
-            {
-              "type": "custom:accent-myhome-power-metrics-v4"
-            },
-            {
-              "type": "custom:accent-myhome-energy-facts-v2",
-              "title": "Stored energy",
-              "eyebrow": "Battery / Goodwe",
-              "accent": "battery",
-              "items": [
-                {
-                  "key": "soc",
-                  "name": "State of charge",
-                  "kind": "percent"
-                },
-                {
-                  "key": "mode",
-                  "name": "Work mode",
-                  "kind": "text"
-                },
-                {
-                  "key": "chargeDay",
-                  "name": "Charged today",
-                  "kind": "energy"
-                },
-                {
-                  "key": "dischargeDay",
-                  "name": "Discharged today",
-                  "kind": "energy"
-                },
-                {
-                  "key": "temperature",
-                  "name": "BMS temperature",
-                  "kind": "temperature"
-                },
-                {
-                  "key": "battery",
-                  "name": "Battery power now",
-                  "kind": "power"
-                }
-              ]
-            },
-            {
-              "type": "custom:accent-myhome-energy-health-balance-v1",
-              "mode": "health"
-            },
-            {
-              "type": "custom:zee-metric-board",
-              "title": "PV strings",
-              "eyebrow": "Goodwe",
-              "items": [
-                {"entity": "sensor.goodwe_pv1_power", "name": "PV1 power", "digits": 0},
-                {"entity": "sensor.goodwe_pv1_voltage", "name": "PV1 voltage", "digits": 1},
-                {"entity": "sensor.goodwe_pv2_power", "name": "PV2 power", "digits": 0},
-                {"entity": "sensor.goodwe_pv2_voltage", "name": "PV2 voltage", "digits": 1},
-                {"entity": "sensor.goodwe_today_s_pv_generation", "name": "PV today", "digits": 2},
-                {"entity": "sensor.goodwe_today_load", "name": "Load today", "digits": 2},
-                {"entity": "sensor.goodwe_today_energy_import", "name": "Import today", "digits": 2},
-                {"entity": "sensor.goodwe_today_battery_charge", "name": "Charge today", "digits": 2},
-                {"entity": "sensor.goodwe_today_battery_discharge", "name": "Discharge today", "digits": 2}
-              ]
+              "type": "custom:zee-energy-board"
             }
           ]
         }
