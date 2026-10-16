@@ -10,10 +10,10 @@ import "./energy-health-balance.js";
 import "./energy-flow-animation.js";
 import "./energy-flow-colours.js";
 import "./floating-nav-icons.js?v=5";
-import "./house-scene-base.js?v=5";
-import "./house-scene-variant-base.js?v=5";
+import "./house-scene-base.js?v=6";
+import "./house-scene-variant-base.js?v=6";
 import "./house-scene.js";
-import "./house-weather.js?v=5";
+import "./house-weather.js?v=6";
 import "./house-weather-variant.js";
 import "./power-metrics.js";
 const CSS = `

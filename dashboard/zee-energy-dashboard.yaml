@@ -25,38 +25,17 @@
               "type": "custom:myhome-preset-live-v1"
             },
             {
-              "type": "entities",
+              "type": "custom:zee-metric-board",
               "title": "Live power",
-              "show_header_toggle": false,
-              "entities": [
-                {
-                  "entity": "sensor.goodwe_pv_power",
-                  "name": "Solar"
-                },
-                {
-                  "entity": "sensor.goodwe_house_consumption",
-                  "name": "Home"
-                },
-                {
-                  "entity": "sensor.goodwe_active_power",
-                  "name": "Grid"
-                },
-                {
-                  "entity": "sensor.goodwe_battery_power",
-                  "name": "Battery"
-                },
-                {
-                  "entity": "sensor.goodwe_battery_state_of_charge",
-                  "name": "Battery SoC"
-                },
-                {
-                  "entity": "sensor.goodwe_inverter_temperature_air",
-                  "name": "Inverter temp"
-                },
-                {
-                  "entity": "sensor.goodwe_battery_max_cell_temperature",
-                  "name": "Battery max cell"
-                }
+              "eyebrow": "Goodwe",
+              "items": [
+                {"entity": "sensor.goodwe_pv_power", "name": "Solar", "digits": 0},
+                {"entity": "sensor.goodwe_house_consumption", "name": "Home", "digits": 0},
+                {"entity": "sensor.goodwe_active_power", "name": "Grid", "digits": 0},
+                {"entity": "sensor.goodwe_battery_power", "name": "Battery", "digits": 0},
+                {"entity": "sensor.goodwe_battery_state_of_charge", "name": "Battery SoC", "digits": 0},
+                {"entity": "sensor.goodwe_inverter_temperature_air", "name": "Inverter temp", "digits": 1},
+                {"entity": "sensor.goodwe_battery_max_cell_temperature", "name": "Battery max cell", "digits": 1}
               ]
             }
           ]
