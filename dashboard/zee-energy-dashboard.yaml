@@ -141,53 +141,19 @@
               "mode": "health"
             },
             {
-              "type": "entities",
+              "type": "custom:zee-metric-board",
               "title": "PV strings",
-              "show_header_toggle": false,
-              "entities": [
-                {
-                  "entity": "sensor.goodwe_pv1_power",
-                  "name": "PV1 power"
-                },
-                {
-                  "entity": "sensor.goodwe_pv1_voltage",
-                  "name": "PV1 voltage"
-                },
-                {
-                  "entity": "sensor.goodwe_pv2_power",
-                  "name": "PV2 power"
-                },
-                {
-                  "entity": "sensor.goodwe_pv2_voltage",
-                  "name": "PV2 voltage"
-                }
-              ]
-            },
-            {
-              "type": "entities",
-              "title": "Today",
-              "show_header_toggle": false,
-              "entities": [
-                {
-                  "entity": "sensor.goodwe_today_s_pv_generation",
-                  "name": "PV generation"
-                },
-                {
-                  "entity": "sensor.goodwe_today_load",
-                  "name": "House load"
-                },
-                {
-                  "entity": "sensor.goodwe_today_energy_import",
-                  "name": "Grid import"
-                },
-                {
-                  "entity": "sensor.goodwe_today_battery_charge",
-                  "name": "Battery charge"
-                },
-                {
-                  "entity": "sensor.goodwe_today_battery_discharge",
-                  "name": "Battery discharge"
-                }
+              "eyebrow": "Goodwe",
+              "items": [
+                {"entity": "sensor.goodwe_pv1_power", "name": "PV1 power", "digits": 0},
+                {"entity": "sensor.goodwe_pv1_voltage", "name": "PV1 voltage", "digits": 1},
+                {"entity": "sensor.goodwe_pv2_power", "name": "PV2 power", "digits": 0},
+                {"entity": "sensor.goodwe_pv2_voltage", "name": "PV2 voltage", "digits": 1},
+                {"entity": "sensor.goodwe_today_s_pv_generation", "name": "PV today", "digits": 2},
+                {"entity": "sensor.goodwe_today_load", "name": "Load today", "digits": 2},
+                {"entity": "sensor.goodwe_today_energy_import", "name": "Import today", "digits": 2},
+                {"entity": "sensor.goodwe_today_battery_charge", "name": "Charge today", "digits": 2},
+                {"entity": "sensor.goodwe_today_battery_discharge", "name": "Discharge today", "digits": 2}
               ]
             }
           ]
@@ -215,36 +181,7 @@
               }
             },
             {
-              "type": "picture-entity",
-              "entity": "camera.embedded_net_dvr_channel_1",
-              "name": "Camera 1",
-              "camera_view": "auto",
-              "show_name": true,
-              "show_state": false
-            },
-            {
-              "type": "picture-entity",
-              "entity": "camera.embedded_net_dvr_channel_2",
-              "name": "Camera 2",
-              "camera_view": "auto",
-              "show_name": true,
-              "show_state": false
-            },
-            {
-              "type": "picture-entity",
-              "entity": "camera.embedded_net_dvr_channel_3",
-              "name": "Camera 3",
-              "camera_view": "auto",
-              "show_name": true,
-              "show_state": false
-            },
-            {
-              "type": "picture-entity",
-              "entity": "camera.embedded_net_dvr_channel_4",
-              "name": "Camera 4",
-              "camera_view": "auto",
-              "show_name": true,
-              "show_state": false
+              "type": "custom:zee-cameras"
             }
           ]
         }
@@ -271,94 +208,7 @@
               }
             },
             {
-              "type": "entities",
-              "title": "Refrigerator",
-              "show_header_toggle": false,
-              "entities": [
-                {
-                  "entity": "sensor.zee_refrigerator_fridge_temperature",
-                  "name": "Fridge"
-                },
-                {
-                  "entity": "sensor.zee_refrigerator_fridge_target_temperature",
-                  "name": "Fridge target"
-                },
-                {
-                  "entity": "binary_sensor.zee_refrigerator_fridge_door",
-                  "name": "Fridge door"
-                },
-                {
-                  "entity": "sensor.zee_refrigerator_freezer_temperature",
-                  "name": "Freezer"
-                },
-                {
-                  "entity": "sensor.zee_refrigerator_freezer_target_temperature",
-                  "name": "Freezer target"
-                },
-                {
-                  "entity": "binary_sensor.zee_refrigerator_freezer_door",
-                  "name": "Freezer door"
-                },
-                {
-                  "entity": "sensor.zee_refrigerator_mode",
-                  "name": "Mode"
-                }
-              ]
-            },
-            {
-              "type": "water-heater",
-              "entity": "water_heater.151732606824523_water_heater",
-              "name": "Water heater"
-            },
-            {
-              "type": "entities",
-              "title": "Water heater",
-              "show_header_toggle": false,
-              "entities": [
-                {
-                  "entity": "sensor.151732606824523_current_temperature",
-                  "name": "Temperature"
-                },
-                {
-                  "entity": "sensor.151732606824523_heating_power",
-                  "name": "Heating power"
-                },
-                {
-                  "entity": "binary_sensor.151732606824523_heating",
-                  "name": "Heating"
-                },
-                {
-                  "entity": "sensor.151732606824523_heating_time_remaining",
-                  "name": "Time remaining"
-                },
-                {
-                  "entity": "sensor.151732606824523_water_consumption",
-                  "name": "Water used"
-                }
-              ]
-            },
-            {
-              "type": "entities",
-              "title": "AC smart plug",
-              "show_header_toggle": false,
-              "entities": [
-                {
-                  "entity": "switch.ac_smart_plug_socket_1",
-                  "name": "Socket"
-                },
-                {
-                  "entity": "sensor.ac_smart_plug_power",
-                  "name": "Power"
-                },
-                {
-                  "entity": "sensor.ac_smart_plug_voltage",
-                  "name": "Voltage"
-                },
-                {
-                  "entity": "sensor.ac_smart_plug_current",
-                  "name": "Current"
-                }
-              ]
+              "type": "custom:zee-appliances"
             }
           ]
         }
@@ -385,61 +235,7 @@
               }
             },
             {
-              "type": "glance",
-              "title": "Rooms",
-              "columns": 2,
-              "entities": [
-                {
-                  "entity": "sensor.temperature_sensor_temperature",
-                  "name": "Room 1"
-                },
-                {
-                  "entity": "sensor.temperature_sensor_humidity",
-                  "name": "Room 1 humidity"
-                },
-                {
-                  "entity": "sensor.temperature_sensor_2_temperature",
-                  "name": "Room 2"
-                },
-                {
-                  "entity": "sensor.temperature_sensor_2_humidity",
-                  "name": "Room 2 humidity"
-                }
-              ]
-            },
-            {
-              "type": "custom:mini-graph-card",
-              "name": "Room temperatures",
-              "hours_to_show": 24,
-              "points_per_hour": 2,
-              "line_width": 2,
-              "entities": [
-                {
-                  "entity": "sensor.temperature_sensor_temperature",
-                  "name": "Room 1",
-                  "color": "#e4b968"
-                },
-                {
-                  "entity": "sensor.temperature_sensor_2_temperature",
-                  "name": "Room 2",
-                  "color": "#7bd9b2"
-                }
-              ]
-            },
-            {
-              "type": "entities",
-              "title": "Sensor batteries",
-              "show_header_toggle": false,
-              "entities": [
-                {
-                  "entity": "sensor.temperature_sensor_battery",
-                  "name": "Room 1 battery"
-                },
-                {
-                  "entity": "sensor.temperature_sensor_2_battery",
-                  "name": "Room 2 battery"
-                }
-              ]
+              "type": "custom:zee-climate"
             }
           ]
         }
@@ -466,106 +262,7 @@
               }
             },
             {
-              "type": "entities",
-              "title": "Inverter",
-              "show_header_toggle": false,
-              "entities": [
-                {
-                  "entity": "sensor.goodwe_work_mode",
-                  "name": "Work mode"
-                },
-                {
-                  "entity": "sensor.goodwe_diag_status",
-                  "name": "Status"
-                },
-                {
-                  "entity": "sensor.goodwe_errors",
-                  "name": "Errors"
-                },
-                {
-                  "entity": "sensor.goodwe_inverter_temperature_air",
-                  "name": "Air temp"
-                },
-                {
-                  "entity": "sensor.goodwe_inverter_temperature_radiator",
-                  "name": "Radiator temp"
-                },
-                {
-                  "entity": "sensor.goodwe_hours_total",
-                  "name": "Running hours"
-                },
-                {
-                  "entity": "sensor.goodwe_on_grid_l1_voltage",
-                  "name": "Grid voltage"
-                },
-                {
-                  "entity": "sensor.goodwe_on_grid_l1_frequency",
-                  "name": "Grid frequency"
-                },
-                {
-                  "entity": "sensor.goodwe_back_up_l1_voltage",
-                  "name": "Backup voltage"
-                },
-                {
-                  "entity": "number.goodwe_grid_export_limit",
-                  "name": "Export limit"
-                },
-                {
-                  "entity": "number.goodwe_depth_of_discharge_on_grid",
-                  "name": "DoD on grid"
-                }
-              ]
-            },
-            {
-              "type": "gauge",
-              "entity": "sensor.localhost_cpu_usage",
-              "name": "CPU",
-              "min": 0,
-              "max": 100,
-              "needle": true
-            },
-            {
-              "type": "gauge",
-              "entity": "sensor.localhost_memory_usage",
-              "name": "Memory",
-              "min": 0,
-              "max": 100,
-              "needle": true
-            },
-            {
-              "type": "entities",
-              "title": "Home Assistant host",
-              "show_header_toggle": false,
-              "entities": [
-                {
-                  "entity": "sensor.localhost_uptime",
-                  "name": "Uptime"
-                },
-                {
-                  "entity": "sensor.localhost_etc_hostname_disk_usage",
-                  "name": "Disk"
-                },
-                {
-                  "entity": "sensor.localhost_core_0_temperature",
-                  "name": "Core 0"
-                },
-                {
-                  "entity": "sensor.localhost_core_1_temperature",
-                  "name": "Core 1"
-                },
-                {
-                  "entity": "sensor.localhost_package_id_0_temperature",
-                  "name": "Package"
-                },
-                {
-                  "entity": "sensor.localhost_eth0_rx",
-                  "name": "Ethernet RX"
-                },
-                {
-                  "entity": "sensor.localhost_eth0_tx",
-                  "name": "Ethernet TX"
-                }
-              ]
+              "type": "custom:zee-system"
             }
           ]
         }

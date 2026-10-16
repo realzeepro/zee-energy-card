@@ -16,3 +16,4 @@ import "./house-scene.js";
 import "./house-weather.js";
 import "./house-weather-variant.js";
 import "./power-metrics.js";
+import "./zee-pages.js";
