@@ -99,10 +99,12 @@ class MyHomeStudioBaseV21 extends HTMLElement{
     const update=(key,value,sub)=>{put("value-"+key,value);put("sub-"+key,sub);};
     update("solar",power(pv),day===null?"Today unavailable":day.toFixed(1)+" kWh today");
     update("home",power(hp),homeToday===null?"Today unavailable":homeToday.toFixed(1)+" kWh used today");
-    update("battery",soc===null?"—":Math.round(soc)+"%",bp===null?unavailable:batteryLabel);
+    const deg=id=>{const n=this._num(id);return n===null?"—":n.toFixed(1)+"°C";};
+    const cellT=deg("sensor.goodwe_battery_max_cell_temperature"),invT=deg("sensor.goodwe_inverter_temperature_air");
+    update("battery",soc===null?"—":Math.round(soc)+"%",(bp===null?unavailable:batteryLabel)+" · "+cellT);
     update("grid",power(grid),gridLabel);put("total-grid",exportToday===null?"Export unavailable":exportToday.toFixed(1)+" kWh exported today");
     update("ev",ev===null?"—":ev>.05?power(ev):"Idle",evLabel);
-    for(const [key,val,sub] of [["solar",day===null?"—":day.toFixed(2)+" kWh",pv===null?unavailable:power(pv)+" now"],["battery",soc===null?"—":soc.toFixed(1)+"%",batteryLabel+" · "+power(bp)],["home",power(hp),"Current demand"],["grid",power(grid),gridLabel],["ev",power(ev),evLabel],["tesla",car===null?"—":Math.round(car)+"%",range===null?"Range unavailable":Math.round(range)+" mi range"]]){put("detail-"+key,val);put("detail-sub-"+key,sub);}
+    for(const [key,val,sub] of [["solar",day===null?"—":day.toFixed(2)+" kWh",pv===null?unavailable:power(pv)+" now"],["battery",soc===null?"—":soc.toFixed(1)+"%",batteryLabel+" · "+power(bp)+" · cell "+cellT+" · inv "+invT],["home",power(hp),"Current demand"],["grid",power(grid),gridLabel],["ev",power(ev),evLabel],["tesla",car===null?"—":Math.round(car)+"%",range===null?"Range unavailable":Math.round(range)+" mi range"]]){put("detail-"+key,val);put("detail-sub-"+key,sub);}
     const flow=(key,n,reverse=false,threshold=.02)=>{const el=q("#flow-"+key);el.classList.toggle("on",n!==null&&Math.abs(n)>threshold);el.classList.toggle("reverse",reverse);};
     flow("solar",pv);flow("battery",bp,bp!==null&&bp>0);flow("home",hp);flow("grid",grid,grid!==null&&grid<0,.005);flow("ev",ev,false,.05);
     q("#soc-meter").setAttribute("stroke-dasharray",(soc===null?0:Math.max(0,Math.min(100,soc)))+" 100");
@@ -131,7 +133,7 @@ class MyHomeStudioBaseV21 extends HTMLElement{
     put("weather-condition",(names[weather]||"Weather unavailable")+(mode==="auto"?"":" · preview"));
     let summary=hp===null?"Home demand unavailable":bp!==null&&bp<-.02?"Battery is supporting your home":pv!==null&&pv>.05?"Solar is powering your home":grid!==null&&grid>.02?"Home is drawing from the grid":"Home energy, live";
     if(ev!==null&&ev>.05)summary="EV charging · "+power(ev);
-    put("energy-summary",summary);
+    put("energy-summary",summary+" · Inverter "+invT+" · Cell "+cellT);
   }
 }
 if(!customElements.get('myhome-studio-base-v21'))customElements.define('myhome-studio-base-v21',MyHomeStudioBaseV21);

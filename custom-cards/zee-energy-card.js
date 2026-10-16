@@ -1,4 +1,4 @@
-// Zee Energy Card — mobile dashboard modules for Goodwe solar, cameras, and house sensors.
+// Zee Energy Card â€” mobile dashboard modules for Goodwe solar, cameras, and house sensors.
 import "./accent-panels.js";
 import "./appearance-presets.js";
 import "./energy-components.js?v=3";
@@ -10,10 +10,10 @@ import "./energy-health-balance.js";
 import "./energy-flow-animation.js";
 import "./energy-flow-colours.js";
 import "./floating-nav-icons.js";
-import "./house-scene-base.js";
+import "./house-scene-base.js?v=4";
 import "./house-scene-variant-base.js";
 import "./house-scene.js";
-import "./house-weather.js";
+import "./house-weather.js?v=4";
 import "./house-weather-variant.js";
 import "./power-metrics.js";
 const CSS = `
@@ -46,6 +46,18 @@ h2{font-size:20px;font-weight:680;letter-spacing:-.4px}
 .row{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:8px}
 .toggle{min-width:72px;min-height:40px;border-radius:999px;padding:0 14px;font-size:12px;font-weight:750;background:color-mix(in srgb,var(--primary-text-color) 8%,transparent)}
 .toggle.on{background:color-mix(in srgb,var(--accent) 28%,transparent);color:var(--primary-text-color)}
+.toggle:disabled,.step:disabled,.mode:disabled{opacity:.35;cursor:default}
+.stack{display:flex;flex-direction:column;gap:12px}
+.modes{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.mode,.step{min-height:40px;border-radius:999px;padding:0 12px;font-size:12px;font-weight:750;background:color-mix(in srgb,var(--primary-text-color) 8%,transparent)}
+.mode.on{background:color-mix(in srgb,var(--accent) 28%,transparent)}
+.step{width:42px;padding:0;border-radius:50%;font-size:20px}
+.stepper{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px}
+.target{font-size:28px;font-weight:680;letter-spacing:-.6px}
+.group{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:750;margin:12px 0 6px}
+.lightbox{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;gap:12px;padding:16px;background:#0b0e12f2}
+.lightbox img{width:100%;flex:1;min-height:0;object-fit:contain;background:#000;border-radius:16px}
+.back{align-self:flex-start;min-height:40px;padding:0 14px;border-radius:999px;font-size:12px;font-weight:750;background:color-mix(in srgb,var(--accent) 22%,transparent)}
 .rings{display:flex;gap:16px;justify-content:space-around;margin:6px 0 14px}
 .ring{position:relative;width:104px;height:104px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p)*1%),color-mix(in srgb,var(--muted) 18%,transparent) 0)}
 .ring i{position:absolute;inset:9px;border-radius:50%;background:var(--base)}
@@ -73,9 +85,54 @@ function reading(hass, id, digits) {
   return `${n.toFixed(dp)}${unit ? " " + unit : ""}`;
 }
 
-function picture(hass, id) {
-  return stateOf(hass, id)?.attributes?.entity_picture || "";
+function rawState(hass, id) {
+  return hass?.states?.[id] || null;
 }
+
+function dead(entity) {
+  return !entity || ["unknown", "unavailable", "none", ""].includes(entity.state);
+}
+
+function labelOf(mode) {
+  return String(mode || "").replace(/_/g, " ");
+}
+
+function uptimeText(hass, id) {
+  const entity = rawState(hass, id);
+  if (!entity || ["unknown", "unavailable", "none", ""].includes(entity.state)) return "—";
+  const raw = String(entity.state).trim();
+  let seconds = null;
+  if (/^\d+(\.\d+)?$/.test(raw)) {
+    const num = Number(raw);
+    seconds = raw.replace(".", "").length >= 10 || num > 1e9
+      ? Math.max(0, Math.floor((Date.now() - (String(Math.trunc(num)).length <= 10 ? num * 1000 : num)) / 1000))
+      : num;
+  } else {
+    const parsed = new Date(raw.replace(/\s+at\s+/i, " ").replace("T", " "));
+    if (!Number.isNaN(parsed.getTime())) seconds = Math.max(0, Math.floor((Date.now() - parsed.getTime()) / 1000));
+  }
+  if (seconds === null) return raw;
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(days)} Days ${pad(hours)} Hours`;
+}
+
+function mideaAc(hass) {
+  const climates = Object.values(hass?.states || {}).filter((entity) => entity.entity_id.startsWith("climate."));
+  const score = (entity) => {
+    const blob = `${entity.entity_id} ${entity.attributes?.friendly_name || ""}`.toLowerCase();
+    let rank = 0;
+    if (blob.includes("midea")) rank += 4;
+    if (/\bac\b|air.?cond/.test(blob)) rank += 3;
+    if (blob.includes("water")) rank -= 6;
+    return rank;
+  };
+  climates.sort((a, b) => score(b) - score(a));
+  return climates[0] || null;
+}
+
+const WATER_HEATER = "water_heater.151732606824523_water_heater";
 
 class ZeePage extends HTMLElement {
   setConfig(config) {
@@ -106,49 +163,150 @@ class ZeeMetrics extends ZeePage {
 }
 
 class ZeeCameras extends ZeePage {
-  render() {
+  set hass(hass) {
+    this._hass = hass;
+    this.refresh();
+  }
+  refresh() {
     if (!this._hass) return;
-    const cams = this.config?.cameras || [
+    const cams = this.cameras();
+    const key = this._open || "";
+    if (this._key !== key || !this.shadowRoot?.querySelector(".panel")) {
+      this._key = key;
+      this.draw(cams);
+    }
+    this.streams(cams);
+  }
+  cameras() {
+    return this.config?.cameras || [
       ["camera.embedded_net_dvr_channel_1", "Camera 1"],
       ["camera.embedded_net_dvr_channel_2", "Camera 2"],
       ["camera.embedded_net_dvr_channel_3", "Camera 3"],
       ["camera.embedded_net_dvr_channel_4", "Camera 4"],
     ];
-    this.shell("Cameras", "Security", `<div class="cams">${cams.map(([id, name]) => {
-      const src = picture(this._hass, id);
-      return `<button class="cam" data-id="${esc(id)}" aria-label="${esc(name)}">${src ? `<img alt="" src="${esc(src)}">` : ""}<span>${esc(name)}</span></button>`;
-    }).join("")}</div>`);
-    this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
+  }
+  async streamUrl(id) {
+    const cache = this._streams || (this._streams = {});
+    const hit = cache[id];
+    if (hit && hit.exp > Date.now() + 15000) return hit.url;
+    try {
+      const signed = await this._hass.callWS({ type: "auth/sign_path", path: `/api/camera_proxy_stream/${id}`, expires: 300 });
+      if (signed?.path) {
+        const url = this._hass.hassUrl ? this._hass.hassUrl(signed.path) : signed.path;
+        cache[id] = { url, exp: Date.now() + 280000 };
+        return url;
+      }
+    } catch { /* snapshot fallback */ }
+    const picture = this._hass.states?.[id]?.attributes?.entity_picture || "";
+    if (picture) cache[id] = { url: picture, exp: Date.now() + 4000 };
+    return picture;
+  }
+  draw(cams) {
+    const open = cams.find(([id]) => id === this._open);
+    const body = open
+      ? `<div class="lightbox"><button class="back" id="cam-back" type="button">Back to cameras</button><div class="eyebrow">${esc(open[1])}</div><img data-cam="${esc(open[0])}" alt="${esc(open[1])}"></div>`
+      : `<div class="cams">${cams.map(([id, name]) => `<button class="cam" data-cam-open="${esc(id)}" type="button" aria-label="Enlarge ${esc(name)}"><img data-cam="${esc(id)}" alt=""><span>${esc(name)}</span></button>`).join("")}</div>`;
+    this.shell("Cameras", "Security", body);
+    const back = this.shadowRoot.querySelector("#cam-back");
+    if (back) back.onclick = () => { this._open = ""; this.refresh(); };
+    this.shadowRoot.querySelectorAll("[data-cam-open]").forEach((button) => {
+      button.onclick = () => { this._open = button.dataset.camOpen; this.refresh(); };
+    });
+  }
+  async streams(cams) {
+    const token = (this._token = (this._token || 0) + 1);
+    const shown = this._open ? cams.filter(([id]) => id === this._open) : cams;
+    for (const [id] of shown) {
+      const url = await this.streamUrl(id);
+      if (token !== this._token || !url) continue;
+      const img = this.shadowRoot.querySelector(`img[data-cam="${id}"]`);
+      if (img && img.getAttribute("src") !== url) img.setAttribute("src", url);
+    }
   }
 }
 
 class ZeeAppliances extends ZeePage {
+  panel(eyebrow, title, body) {
+    return `<section class="panel"><div class="head"><div><div class="eyebrow">${esc(eyebrow)}</div><h2>${esc(title)}</h2></div></div>${body}</section>`;
+  }
+  modes(modes, active, kind, off) {
+    return `<div class="modes">${modes.map((mode) => `<button class="mode${mode === active ? " on" : ""}" type="button" data-${kind}="${esc(mode)}"${off ? " disabled" : ""}>${esc(labelOf(mode))}</button>`).join("")}</div>`;
+  }
   render() {
     if (!this._hass) return;
     const h = this._hass;
     const door = (id) => { const s = stateOf(h, id); if (!s) return ["—", false]; return [s.state === "on" ? "Open" : "Closed", s.state === "on"]; };
     const [fridgeDoor, fridgeOpen] = door("binary_sensor.zee_refrigerator_fridge_door");
     const [freezerDoor, freezerOpen] = door("binary_sensor.zee_refrigerator_freezer_door");
+    const mode = stateOf(h, "sensor.zee_refrigerator_mode");
+    const ac = mideaAc(h);
+    const acOff = dead(ac);
+    const acAttrs = ac?.attributes || {};
+    const acModes = acAttrs.hvac_modes?.length ? acAttrs.hvac_modes : ["off", "cool", "heat", "auto", "dry", "fan_only"];
+    const acTarget = Number(acAttrs.temperature);
+    const acNow = Number(acAttrs.current_temperature);
+    const fans = acAttrs.fan_modes || [];
+    const heater = rawState(h, WATER_HEATER);
+    const heatOff = dead(heater);
+    const heatAttrs = heater?.attributes || {};
+    const heatModes = heatAttrs.operation_list?.length ? heatAttrs.operation_list : ["off", "eco", "electric", "performance", "heat_pump"];
+    const heatTarget = Number.isFinite(Number(heatAttrs.temperature)) ? Number(heatAttrs.temperature) : Number(stateOf(h, "sensor.151732606824523_current_temperature")?.state);
+    const heatNow = Number.isFinite(Number(heatAttrs.current_temperature)) ? Number(heatAttrs.current_temperature) : null;
+    const heatActive = heatOff ? "" : (heatAttrs.operation_mode || heater.state);
     const heating = stateOf(h, "binary_sensor.151732606824523_heating");
-    const plug = stateOf(h, "switch.ac_smart_plug_socket_1");
+    const plug = rawState(h, "switch.ac_smart_plug_socket_1");
+    const plugOff = dead(plug);
     const plugOn = plug?.state === "on";
-    this.shell("Appliances", "House", `
-      <div class="hero">
-        <button data-id="sensor.zee_refrigerator_fridge_temperature"><div class="kicker">Fridge</div><div class="temp">${esc(reading(h, "sensor.zee_refrigerator_fridge_temperature", 1))}</div><div class="meta">Target ${esc(reading(h, "sensor.zee_refrigerator_fridge_target_temperature", 1))}</div><span class="chip${fridgeOpen ? " warn" : ""}">${esc(fridgeDoor)}</span></button>
-        <button data-id="sensor.zee_refrigerator_freezer_temperature"><div class="kicker">Freezer</div><div class="temp">${esc(reading(h, "sensor.zee_refrigerator_freezer_temperature", 1))}</div><div class="meta">Target ${esc(reading(h, "sensor.zee_refrigerator_freezer_target_temperature", 1))}</div><span class="chip${freezerOpen ? " warn" : ""}">${esc(freezerDoor)}</span></button>
-      </div>
-      <button class="wide" data-id="water_heater.151732606824523_water_heater">
-        <div class="kicker">Water heater</div>
-        <div class="temp">${esc(reading(h, "sensor.151732606824523_current_temperature", 1))}</div>
-        <div class="meta">${esc(reading(h, "sensor.151732606824523_heating_power", 0))} · ${esc(reading(h, "sensor.151732606824523_water_consumption", 1))} used</div>
-        <span class="chip${heating?.state === "on" ? "" : ""}">${heating?.state === "on" ? "Heating" : "Idle"}${stateOf(h, "sensor.151732606824523_heating_time_remaining") ? " · " + esc(reading(h, "sensor.151732606824523_heating_time_remaining", 0)) : ""}</span>
-      </button>
-      <div class="wide" style="margin-top:8px">
-        <div class="row"><div><div class="kicker">AC plug</div><div class="temp" style="font-size:26px">${esc(reading(h, "sensor.ac_smart_plug_power", 0))}</div><div class="meta">${esc(reading(h, "sensor.ac_smart_plug_voltage", 0))} · ${esc(reading(h, "sensor.ac_smart_plug_current", 2))}</div></div><button class="toggle${plugOn ? " on" : ""}" id="plug">${plugOn ? "On" : "Off"}</button></div>
-      </div>`);
+    this.shadowRoot.innerHTML = `<style>${CSS}</style><div class="stack">
+      ${this.panel("Kitchen", "Refrigerator", `
+        <div class="hero">
+          <button data-id="sensor.zee_refrigerator_fridge_temperature" type="button"><div class="kicker">Fridge</div><div class="temp">${esc(reading(h, "sensor.zee_refrigerator_fridge_temperature", 1))}</div><div class="meta">Target ${esc(reading(h, "sensor.zee_refrigerator_fridge_target_temperature", 1))}</div><span class="chip${fridgeOpen ? " warn" : ""}">${esc(fridgeDoor)}</span></button>
+          <button data-id="sensor.zee_refrigerator_freezer_temperature" type="button"><div class="kicker">Freezer</div><div class="temp">${esc(reading(h, "sensor.zee_refrigerator_freezer_temperature", 1))}</div><div class="meta">Target ${esc(reading(h, "sensor.zee_refrigerator_freezer_target_temperature", 1))}</div><span class="chip${freezerOpen ? " warn" : ""}">${esc(freezerDoor)}</span></button>
+        </div>
+        <div class="meta">Mode ${esc(mode ? mode.state : "—")}</div>`)}
+      ${this.panel("Climate", "Midea AC", `
+        <div class="row"><div><div class="kicker">${esc(ac?.attributes?.friendly_name || "Midea AC")}</div><div class="temp">${acOff || !Number.isFinite(acNow) ? "—" : acNow.toFixed(1) + "°C"}</div><div class="meta">${acOff ? "Unavailable" : esc(labelOf(ac.state))}</div></div><span class="chip${acOff ? " warn" : ""}">${acOff ? "Unavailable" : "Live"}</span></div>
+        <div class="stepper"><button class="step" type="button" data-ac-step="-0.5"${acOff ? " disabled" : ""}>−</button><div><div class="kicker">Target</div><div class="target">${Number.isFinite(acTarget) ? acTarget.toFixed(1) + "°C" : "—"}</div></div><button class="step" type="button" data-ac-step="0.5"${acOff ? " disabled" : ""}>+</button></div>
+        ${this.modes(acModes, acOff ? "" : ac.state, "ac-mode", acOff)}
+        ${fans.length ? `<div class="group">Fan</div>${this.modes(fans, acAttrs.fan_mode, "ac-fan", acOff)}` : ""}`)}
+      ${this.panel("Water", "Water heater", `
+        <div class="row"><div><div class="kicker">Current</div><div class="temp">${heatOff ? "—" : esc(heatNow === null ? reading(h, "sensor.151732606824523_current_temperature", 1) : heatNow.toFixed(1) + "°C")}</div><div class="meta">${heatOff ? "Unavailable" : esc(labelOf(heatActive))}${heating?.state === "on" ? " · Heating" : ""}</div></div><span class="chip${heatOff ? " warn" : ""}">${heatOff ? "Unavailable" : "Live"}</span></div>
+        <div class="stepper"><button class="step" type="button" data-wh-step="-1"${heatOff ? " disabled" : ""}>−</button><div><div class="kicker">Target</div><div class="target">${Number.isFinite(heatTarget) && !heatOff ? heatTarget.toFixed(0) + "°C" : "—"}</div></div><button class="step" type="button" data-wh-step="1"${heatOff ? " disabled" : ""}>+</button></div>
+        ${this.modes(heatModes, heatActive, "wh-mode", heatOff)}
+        <div class="facts" style="margin-top:12px">
+          <button class="fact" data-id="sensor.151732606824523_heating_power" type="button"><small>Power</small><strong>${esc(reading(h, "sensor.151732606824523_heating_power", 0))}</strong></button>
+          <button class="fact" data-id="sensor.151732606824523_heating_time_remaining" type="button"><small>Time left</small><strong>${esc(reading(h, "sensor.151732606824523_heating_time_remaining", 0))}</strong></button>
+          <button class="fact" data-id="sensor.151732606824523_water_consumption" type="button"><small>Water used</small><strong>${esc(reading(h, "sensor.151732606824523_water_consumption", 1))}</strong></button>
+          <button class="fact" data-id="${WATER_HEATER}" type="button"><small>Status</small><strong>${heatOff ? "Unavailable" : esc(labelOf(heater.state))}</strong></button>
+        </div>`)}
+      ${this.panel("Power", "Smart plugs", `
+        <div class="row"><div><div class="kicker">AC plug</div><div class="temp" style="font-size:26px">${plugOff ? "Unavailable" : plugOn ? "On" : "Off"}</div></div><button class="toggle${plugOn ? " on" : ""}" id="plug" type="button"${plugOff ? " disabled" : ""}>${plugOn ? "On" : "Off"}</button></div>
+        <div class="facts" style="margin-top:12px">
+          <button class="fact" data-id="sensor.ac_smart_plug_power" type="button"><small>Power</small><strong>${esc(reading(h, "sensor.ac_smart_plug_power", 0))}</strong></button>
+          <button class="fact" data-id="sensor.ac_smart_plug_voltage" type="button"><small>Voltage</small><strong>${esc(reading(h, "sensor.ac_smart_plug_voltage", 0))}</strong></button>
+          <button class="fact" data-id="sensor.ac_smart_plug_current" type="button"><small>Current</small><strong>${esc(reading(h, "sensor.ac_smart_plug_current", 2))}</strong></button>
+        </div>`)}
+    </div>`;
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
+    const acId = ac?.entity_id;
+    this.shadowRoot.querySelectorAll("[data-ac-mode]").forEach((button) => { button.onclick = () => { if (acId) h.callService("climate", "set_hvac_mode", { entity_id: acId, hvac_mode: button.dataset.acMode }); }; });
+    this.shadowRoot.querySelectorAll("[data-ac-fan]").forEach((button) => { button.onclick = () => { if (acId) h.callService("climate", "set_fan_mode", { entity_id: acId, fan_mode: button.dataset.acFan }); }; });
+    this.shadowRoot.querySelectorAll("[data-ac-step]").forEach((button) => { button.onclick = () => {
+      if (!acId || acOff) return;
+      const min = Number(acAttrs.min_temp ?? 16), max = Number(acAttrs.max_temp ?? 30);
+      const next = Math.round(( (Number.isFinite(acTarget) ? acTarget : 24) + Number(button.dataset.acStep) ) * 2) / 2;
+      h.callService("climate", "set_temperature", { entity_id: acId, temperature: Math.max(min, Math.min(max, next)) });
+    }; });
+    this.shadowRoot.querySelectorAll("[data-wh-mode]").forEach((button) => { button.onclick = () => { if (!heatOff) h.callService("water_heater", "set_operation_mode", { entity_id: WATER_HEATER, operation_mode: button.dataset.whMode }); }; });
+    this.shadowRoot.querySelectorAll("[data-wh-step]").forEach((button) => { button.onclick = () => {
+      if (heatOff) return;
+      const min = Number(heatAttrs.min_temp ?? 30), max = Number(heatAttrs.max_temp ?? 75);
+      const base = Number.isFinite(heatTarget) ? heatTarget : 50;
+      const next = Math.max(min, Math.min(max, base + Number(button.dataset.whStep)));
+      h.callService("water_heater", "set_temperature", { entity_id: WATER_HEATER, temperature: next });
+    }; });
     const toggle = this.shadowRoot.querySelector("#plug");
-    if (toggle) toggle.onclick = (event) => { event.stopPropagation(); h.callService("switch", "toggle", { entity_id: "switch.ac_smart_plug_socket_1" }); };
+    if (toggle) toggle.onclick = () => { if (!plugOff) h.callService("switch", "toggle", { entity_id: "switch.ac_smart_plug_socket_1" }); };
   }
 }
 
@@ -174,16 +332,26 @@ class ZeeSystem extends ZeePage {
     return Math.max(0, Math.min(100, n));
   }
   facts(items) {
-    return `<div class="facts">${items.map(([name, id, digits]) => `<button class="fact" data-id="${esc(id)}"><small>${esc(name)}</small><strong>${esc(reading(this._hass, id, digits))}</strong></button>`).join("")}</div>`;
+    return `<div class="facts">${items.map(([name, id, digits]) => `<button class="fact" data-id="${esc(id)}"><small>${esc(name)}</small><strong>${esc(id === "sensor.localhost_uptime" ? uptimeText(this._hass, id) : reading(this._hass, id, digits))}</strong></button>`).join("")}</div>`;
   }
   render() {
     if (!this._hass) return;
     const cpu = this.percent("sensor.localhost_cpu_usage");
     const mem = this.percent("sensor.localhost_memory_usage");
     const ring = (value, label) => `<div class="ring" style="--p:${value ?? 0}"><i></i><b>${value === null ? "—" : Math.round(value) + "%"}</b><small>${label}</small></div>`;
-    this.shell("System", "Goodwe / host", `
+    this.shell("System", "Home Assistant host", `
       <div class="rings">${ring(cpu, "CPU")}${ring(mem, "Memory")}</div>
-      <p class="sub" style="margin:0 2px 10px">Inverter</p>
+      <p class="sub" style="margin:0 2px 10px">Home Assistant host</p>
+      ${this.facts([
+        ["Uptime", "sensor.localhost_uptime", 0],
+        ["Disk", "sensor.localhost_etc_hostname_disk_usage", 0],
+        ["Core 0", "sensor.localhost_core_0_temperature", 1],
+        ["Core 1", "sensor.localhost_core_1_temperature", 1],
+        ["Package", "sensor.localhost_package_id_0_temperature", 1],
+        ["Ethernet RX", "sensor.localhost_eth0_rx", 1],
+        ["Ethernet TX", "sensor.localhost_eth0_tx", 1],
+      ])}
+      <p class="sub" style="margin:14px 2px 10px">Inverter</p>
       ${this.facts([
         ["Work mode", "sensor.goodwe_work_mode"],
         ["Status", "sensor.goodwe_diag_status"],
@@ -195,17 +363,7 @@ class ZeeSystem extends ZeePage {
         ["Running hours", "sensor.goodwe_hours_total", 0],
         ["Export limit", "number.goodwe_grid_export_limit", 0],
         ["DoD on grid", "number.goodwe_depth_of_discharge_on_grid", 0],
-      ])}
-      <p class="sub" style="margin:14px 2px 10px">Home Assistant host</p>
-      ${this.facts([
-        ["Uptime", "sensor.localhost_uptime", 0],
-        ["Disk", "sensor.localhost_etc_hostname_disk_usage", 0],
-        ["Core 0", "sensor.localhost_core_0_temperature", 1],
-        ["Core 1", "sensor.localhost_core_1_temperature", 1],
-        ["Package", "sensor.localhost_package_id_0_temperature", 1],
         ["Errors", "sensor.goodwe_errors"],
-        ["Ethernet RX", "sensor.localhost_eth0_rx", 1],
-        ["Ethernet TX", "sensor.localhost_eth0_tx", 1],
       ])}`);
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
   }

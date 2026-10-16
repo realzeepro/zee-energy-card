@@ -61,6 +61,14 @@
                 {
                   "entity": "sensor.goodwe_battery_state_of_charge",
                   "name": "Battery SoC"
+                },
+                {
+                  "entity": "sensor.goodwe_inverter_temperature_air",
+                  "name": "Inverter temp"
+                },
+                {
+                  "entity": "sensor.goodwe_battery_max_cell_temperature",
+                  "name": "Battery max cell"
                 }
               ]
             }
