@@ -1,0 +1,575 @@
+{
+  "title": "Zee Energy",
+  "views": [
+    {
+      "title": "Home",
+      "path": "home",
+      "icon": "mdi:home",
+      "type": "sections",
+      "max_columns": 1,
+      "sections": [
+        {
+          "type": "grid",
+          "cards": [
+            {
+              "type": "custom:myhome-floating-nav-v24",
+              "active": "home",
+              "dashboard": "dashboard-zee-energy",
+              "view": "home",
+              "grid_options": {
+                "columns": "full",
+                "rows": "auto"
+              }
+            },
+            {
+              "type": "custom:myhome-preset-live-v1"
+            },
+            {
+              "type": "custom:clock-weather-card",
+              "entity": "weather.forecast_home",
+              "sun_entity": "sun.sun",
+              "temperature_sensor": "sensor.temperature_sensor_temperature",
+              "weather_icon_type": "line",
+              "animated_icon": true,
+              "forecast_rows": 5,
+              "locale": "en",
+              "time_format": "24",
+              "hide_today_section": false,
+              "hide_forecast_section": false
+            },
+            {
+              "type": "entities",
+              "title": "Live power",
+              "show_header_toggle": false,
+              "entities": [
+                {
+                  "entity": "sensor.goodwe_pv_power",
+                  "name": "Solar"
+                },
+                {
+                  "entity": "sensor.goodwe_house_consumption",
+                  "name": "Home"
+                },
+                {
+                  "entity": "sensor.goodwe_active_power",
+                  "name": "Grid"
+                },
+                {
+                  "entity": "sensor.goodwe_battery_power",
+                  "name": "Battery"
+                },
+                {
+                  "entity": "sensor.goodwe_battery_state_of_charge",
+                  "name": "Battery SoC"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Energy",
+      "path": "energy",
+      "icon": "mdi:solar-power",
+      "type": "sections",
+      "max_columns": 1,
+      "sections": [
+        {
+          "type": "grid",
+          "cards": [
+            {
+              "type": "custom:myhome-floating-nav-v24",
+              "active": "energy",
+              "dashboard": "dashboard-zee-energy",
+              "view": "energy",
+              "grid_options": {
+                "columns": "full",
+                "rows": "auto"
+              }
+            },
+            {
+              "type": "custom:myhome-energy-overview-v6",
+              "home_path": "/dashboard-zee-energy/home"
+            },
+            {
+              "type": "custom:accent-myhome-energy-statistics-v13"
+            },
+            {
+              "type": "custom:accent-myhome-power-metrics-v4"
+            },
+            {
+              "type": "custom:accent-myhome-energy-facts-v2",
+              "title": "Stored energy",
+              "eyebrow": "Battery / Goodwe",
+              "accent": "battery",
+              "items": [
+                {
+                  "key": "soc",
+                  "name": "State of charge",
+                  "kind": "percent"
+                },
+                {
+                  "key": "mode",
+                  "name": "Work mode",
+                  "kind": "text"
+                },
+                {
+                  "key": "chargeDay",
+                  "name": "Charged today",
+                  "kind": "energy"
+                },
+                {
+                  "key": "dischargeDay",
+                  "name": "Discharged today",
+                  "kind": "energy"
+                },
+                {
+                  "key": "temperature",
+                  "name": "BMS temperature",
+                  "kind": "temperature"
+                },
+                {
+                  "key": "battery",
+                  "name": "Battery power now",
+                  "kind": "power"
+                }
+              ]
+            },
+            {
+              "type": "custom:accent-myhome-energy-health-balance-v1",
+              "mode": "health"
+            },
+            {
+              "type": "entities",
+              "title": "PV strings",
+              "show_header_toggle": false,
+              "entities": [
+                {
+                  "entity": "sensor.goodwe_pv1_power",
+                  "name": "PV1 power"
+                },
+                {
+                  "entity": "sensor.goodwe_pv1_voltage",
+                  "name": "PV1 voltage"
+                },
+                {
+                  "entity": "sensor.goodwe_pv2_power",
+                  "name": "PV2 power"
+                },
+                {
+                  "entity": "sensor.goodwe_pv2_voltage",
+                  "name": "PV2 voltage"
+                }
+              ]
+            },
+            {
+              "type": "entities",
+              "title": "Today",
+              "show_header_toggle": false,
+              "entities": [
+                {
+                  "entity": "sensor.goodwe_today_s_pv_generation",
+                  "name": "PV generation"
+                },
+                {
+                  "entity": "sensor.goodwe_today_load",
+                  "name": "House load"
+                },
+                {
+                  "entity": "sensor.goodwe_today_energy_import",
+                  "name": "Grid import"
+                },
+                {
+                  "entity": "sensor.goodwe_today_battery_charge",
+                  "name": "Battery charge"
+                },
+                {
+                  "entity": "sensor.goodwe_today_battery_discharge",
+                  "name": "Battery discharge"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Cameras",
+      "path": "cameras",
+      "icon": "mdi:cctv",
+      "type": "sections",
+      "max_columns": 1,
+      "sections": [
+        {
+          "type": "grid",
+          "cards": [
+            {
+              "type": "custom:myhome-floating-nav-v24",
+              "active": "cameras",
+              "dashboard": "dashboard-zee-energy",
+              "view": "cameras",
+              "grid_options": {
+                "columns": "full",
+                "rows": "auto"
+              }
+            },
+            {
+              "type": "picture-entity",
+              "entity": "camera.embedded_net_dvr_channel_1",
+              "name": "Camera 1",
+              "camera_view": "auto",
+              "show_name": true,
+              "show_state": false
+            },
+            {
+              "type": "picture-entity",
+              "entity": "camera.embedded_net_dvr_channel_2",
+              "name": "Camera 2",
+              "camera_view": "auto",
+              "show_name": true,
+              "show_state": false
+            },
+            {
+              "type": "picture-entity",
+              "entity": "camera.embedded_net_dvr_channel_3",
+              "name": "Camera 3",
+              "camera_view": "auto",
+              "show_name": true,
+              "show_state": false
+            },
+            {
+              "type": "picture-entity",
+              "entity": "camera.embedded_net_dvr_channel_4",
+              "name": "Camera 4",
+              "camera_view": "auto",
+              "show_name": true,
+              "show_state": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Appliances",
+      "path": "appliances",
+      "icon": "mdi:fridge",
+      "type": "sections",
+      "max_columns": 1,
+      "sections": [
+        {
+          "type": "grid",
+          "cards": [
+            {
+              "type": "custom:myhome-floating-nav-v24",
+              "active": "appliances",
+              "dashboard": "dashboard-zee-energy",
+              "view": "appliances",
+              "grid_options": {
+                "columns": "full",
+                "rows": "auto"
+              }
+            },
+            {
+              "type": "entities",
+              "title": "Refrigerator",
+              "show_header_toggle": false,
+              "entities": [
+                {
+                  "entity": "sensor.zee_refrigerator_fridge_temperature",
+                  "name": "Fridge"
+                },
+                {
+                  "entity": "sensor.zee_refrigerator_fridge_target_temperature",
+                  "name": "Fridge target"
+                },
+                {
+                  "entity": "binary_sensor.zee_refrigerator_fridge_door",
+                  "name": "Fridge door"
+                },
+                {
+                  "entity": "sensor.zee_refrigerator_freezer_temperature",
+                  "name": "Freezer"
+                },
+                {
+                  "entity": "sensor.zee_refrigerator_freezer_target_temperature",
+                  "name": "Freezer target"
+                },
+                {
+                  "entity": "binary_sensor.zee_refrigerator_freezer_door",
+                  "name": "Freezer door"
+                },
+                {
+                  "entity": "sensor.zee_refrigerator_mode",
+                  "name": "Mode"
+                }
+              ]
+            },
+            {
+              "type": "water-heater",
+              "entity": "water_heater.151732606824523_water_heater",
+              "name": "Water heater"
+            },
+            {
+              "type": "entities",
+              "title": "Water heater",
+              "show_header_toggle": false,
+              "entities": [
+                {
+                  "entity": "sensor.151732606824523_current_temperature",
+                  "name": "Temperature"
+                },
+                {
+                  "entity": "sensor.151732606824523_heating_power",
+                  "name": "Heating power"
+                },
+                {
+                  "entity": "binary_sensor.151732606824523_heating",
+                  "name": "Heating"
+                },
+                {
+                  "entity": "sensor.151732606824523_heating_time_remaining",
+                  "name": "Time remaining"
+                },
+                {
+                  "entity": "sensor.151732606824523_water_consumption",
+                  "name": "Water used"
+                }
+              ]
+            },
+            {
+              "type": "entities",
+              "title": "AC smart plug",
+              "show_header_toggle": false,
+              "entities": [
+                {
+                  "entity": "switch.ac_smart_plug_socket_1",
+                  "name": "Socket"
+                },
+                {
+                  "entity": "sensor.ac_smart_plug_power",
+                  "name": "Power"
+                },
+                {
+                  "entity": "sensor.ac_smart_plug_voltage",
+                  "name": "Voltage"
+                },
+                {
+                  "entity": "sensor.ac_smart_plug_current",
+                  "name": "Current"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Climate",
+      "path": "climate",
+      "icon": "mdi:thermometer",
+      "type": "sections",
+      "max_columns": 1,
+      "sections": [
+        {
+          "type": "grid",
+          "cards": [
+            {
+              "type": "custom:myhome-floating-nav-v24",
+              "active": "climate",
+              "dashboard": "dashboard-zee-energy",
+              "view": "climate",
+              "grid_options": {
+                "columns": "full",
+                "rows": "auto"
+              }
+            },
+            {
+              "type": "glance",
+              "title": "Rooms",
+              "columns": 2,
+              "entities": [
+                {
+                  "entity": "sensor.temperature_sensor_temperature",
+                  "name": "Room 1"
+                },
+                {
+                  "entity": "sensor.temperature_sensor_humidity",
+                  "name": "Room 1 humidity"
+                },
+                {
+                  "entity": "sensor.temperature_sensor_2_temperature",
+                  "name": "Room 2"
+                },
+                {
+                  "entity": "sensor.temperature_sensor_2_humidity",
+                  "name": "Room 2 humidity"
+                }
+              ]
+            },
+            {
+              "type": "custom:mini-graph-card",
+              "name": "Room temperatures",
+              "hours_to_show": 24,
+              "points_per_hour": 2,
+              "line_width": 2,
+              "entities": [
+                {
+                  "entity": "sensor.temperature_sensor_temperature",
+                  "name": "Room 1",
+                  "color": "#e4b968"
+                },
+                {
+                  "entity": "sensor.temperature_sensor_2_temperature",
+                  "name": "Room 2",
+                  "color": "#7bd9b2"
+                }
+              ]
+            },
+            {
+              "type": "entities",
+              "title": "Sensor batteries",
+              "show_header_toggle": false,
+              "entities": [
+                {
+                  "entity": "sensor.temperature_sensor_battery",
+                  "name": "Room 1 battery"
+                },
+                {
+                  "entity": "sensor.temperature_sensor_2_battery",
+                  "name": "Room 2 battery"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "System",
+      "path": "system",
+      "icon": "mdi:server",
+      "type": "sections",
+      "max_columns": 1,
+      "sections": [
+        {
+          "type": "grid",
+          "cards": [
+            {
+              "type": "custom:myhome-floating-nav-v24",
+              "active": "system",
+              "dashboard": "dashboard-zee-energy",
+              "view": "system",
+              "grid_options": {
+                "columns": "full",
+                "rows": "auto"
+              }
+            },
+            {
+              "type": "entities",
+              "title": "Inverter",
+              "show_header_toggle": false,
+              "entities": [
+                {
+                  "entity": "sensor.goodwe_work_mode",
+                  "name": "Work mode"
+                },
+                {
+                  "entity": "sensor.goodwe_diag_status",
+                  "name": "Status"
+                },
+                {
+                  "entity": "sensor.goodwe_errors",
+                  "name": "Errors"
+                },
+                {
+                  "entity": "sensor.goodwe_inverter_temperature_air",
+                  "name": "Air temp"
+                },
+                {
+                  "entity": "sensor.goodwe_inverter_temperature_radiator",
+                  "name": "Radiator temp"
+                },
+                {
+                  "entity": "sensor.goodwe_hours_total",
+                  "name": "Running hours"
+                },
+                {
+                  "entity": "sensor.goodwe_on_grid_l1_voltage",
+                  "name": "Grid voltage"
+                },
+                {
+                  "entity": "sensor.goodwe_on_grid_l1_frequency",
+                  "name": "Grid frequency"
+                },
+                {
+                  "entity": "sensor.goodwe_back_up_l1_voltage",
+                  "name": "Backup voltage"
+                },
+                {
+                  "entity": "number.goodwe_grid_export_limit",
+                  "name": "Export limit"
+                },
+                {
+                  "entity": "number.goodwe_depth_of_discharge_on_grid",
+                  "name": "DoD on grid"
+                }
+              ]
+            },
+            {
+              "type": "gauge",
+              "entity": "sensor.localhost_cpu_usage",
+              "name": "CPU",
+              "min": 0,
+              "max": 100,
+              "needle": true
+            },
+            {
+              "type": "gauge",
+              "entity": "sensor.localhost_memory_usage",
+              "name": "Memory",
+              "min": 0,
+              "max": 100,
+              "needle": true
+            },
+            {
+              "type": "entities",
+              "title": "Home Assistant host",
+              "show_header_toggle": false,
+              "entities": [
+                {
+                  "entity": "sensor.localhost_uptime",
+                  "name": "Uptime"
+                },
+                {
+                  "entity": "sensor.localhost_etc_hostname_disk_usage",
+                  "name": "Disk"
+                },
+                {
+                  "entity": "sensor.localhost_core_0_temperature",
+                  "name": "Core 0"
+                },
+                {
+                  "entity": "sensor.localhost_core_1_temperature",
+                  "name": "Core 1"
+                },
+                {
+                  "entity": "sensor.localhost_package_id_0_temperature",
+                  "name": "Package"
+                },
+                {
+                  "entity": "sensor.localhost_eth0_rx",
+                  "name": "Ethernet RX"
+                },
+                {
+                  "entity": "sensor.localhost_eth0_tx",
+                  "name": "Ethernet TX"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

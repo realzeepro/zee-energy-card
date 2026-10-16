@@ -1,0 +1,96 @@
+{
+  "note": "Entities used by the Zee Energy dashboard. Helpers and automations are not created by this package.",
+  "by_domain": {
+    "binary_sensor": [
+      "binary_sensor.151732606824523_heating",
+      "binary_sensor.zee_refrigerator_freezer_door",
+      "binary_sensor.zee_refrigerator_fridge_door"
+    ],
+    "camera": [
+      "camera.embedded_net_dvr_channel_1",
+      "camera.embedded_net_dvr_channel_2",
+      "camera.embedded_net_dvr_channel_3",
+      "camera.embedded_net_dvr_channel_4"
+    ],
+    "number": [
+      "number.goodwe_depth_of_discharge_on_grid",
+      "number.goodwe_grid_export_limit"
+    ],
+    "sensor": [
+      "sensor.151732606824523_current_temperature",
+      "sensor.151732606824523_heating_power",
+      "sensor.151732606824523_heating_time_remaining",
+      "sensor.151732606824523_water_consumption",
+      "sensor.ac_smart_plug_current",
+      "sensor.ac_smart_plug_power",
+      "sensor.ac_smart_plug_voltage",
+      "sensor.goodwe_active_power",
+      "sensor.goodwe_back_up_l1_voltage",
+      "sensor.goodwe_battery_max_cell_temperature",
+      "sensor.goodwe_battery_max_cell_voltage",
+      "sensor.goodwe_battery_min_cell_temperature",
+      "sensor.goodwe_battery_min_cell_voltage",
+      "sensor.goodwe_battery_power",
+      "sensor.goodwe_battery_state_of_charge",
+      "sensor.goodwe_battery_state_of_health",
+      "sensor.goodwe_battery_temperature",
+      "sensor.goodwe_diag_status",
+      "sensor.goodwe_errors",
+      "sensor.goodwe_hours_total",
+      "sensor.goodwe_house_consumption",
+      "sensor.goodwe_inverter_temperature_air",
+      "sensor.goodwe_inverter_temperature_radiator",
+      "sensor.goodwe_meter_total_energy_export",
+      "sensor.goodwe_meter_total_energy_import",
+      "sensor.goodwe_on_grid_l1_frequency",
+      "sensor.goodwe_on_grid_l1_voltage",
+      "sensor.goodwe_pv_power",
+      "sensor.goodwe_pv1_power",
+      "sensor.goodwe_pv1_voltage",
+      "sensor.goodwe_pv2_power",
+      "sensor.goodwe_pv2_voltage",
+      "sensor.goodwe_today_battery_charge",
+      "sensor.goodwe_today_battery_discharge",
+      "sensor.goodwe_today_energy_import",
+      "sensor.goodwe_today_load",
+      "sensor.goodwe_today_s_pv_generation",
+      "sensor.goodwe_total_battery_charge",
+      "sensor.goodwe_total_battery_discharge",
+      "sensor.goodwe_total_load",
+      "sensor.goodwe_total_pv_generation",
+      "sensor.goodwe_work_mode",
+      "sensor.localhost_core_0_temperature",
+      "sensor.localhost_core_1_temperature",
+      "sensor.localhost_cpu_usage",
+      "sensor.localhost_etc_hostname_disk_usage",
+      "sensor.localhost_eth0_rx",
+      "sensor.localhost_eth0_tx",
+      "sensor.localhost_memory_usage",
+      "sensor.localhost_package_id_0_temperature",
+      "sensor.localhost_uptime",
+      "sensor.temperature_sensor_2_humidity",
+      "sensor.temperature_sensor_2_temperature",
+      "sensor.temperature_sensor_battery",
+      "sensor.temperature_sensor_humidity",
+      "sensor.temperature_sensor_temperature",
+      "sensor.temperature_sensor_2_battery",
+      "sensor.zee_refrigerator_freezer_target_temperature",
+      "sensor.zee_refrigerator_freezer_temperature",
+      "sensor.zee_refrigerator_fridge_target_temperature",
+      "sensor.zee_refrigerator_fridge_temperature",
+      "sensor.zee_refrigerator_mode"
+    ],
+    "sun": [
+      "sun.sun"
+    ],
+    "switch": [
+      "switch.ac_smart_plug_socket_1"
+    ],
+    "water_heater": [
+      "water_heater.151732606824523_water_heater"
+    ],
+    "weather": [
+      "weather.forecast_home"
+    ]
+  }
+}
