@@ -12,9 +12,11 @@ h2,p{margin:0}
 h2{font-size:20px;font-weight:680;letter-spacing:-.4px}
 .sub{font-size:11px;color:var(--muted)}
 .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.plist{display:flex;flex-direction:column;gap:16px}
+.plist{display:flex;flex-direction:column;gap:18px}
 .psec h3{margin:0 0 2px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:750}
-.psub{margin:8px 0 0;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:750}
+.appliances{display:flex;flex-direction:column;gap:12px;margin-top:10px}
+.pgroup{padding:8px 12px 2px;border-radius:16px;background:color-mix(in srgb,var(--base) 72%,transparent);border:1px solid color-mix(in srgb,var(--accent) 18%,transparent)}
+.psub{margin:0 0 2px;padding-top:4px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:750}
 .prow{display:flex;justify-content:space-between;align-items:baseline;gap:16px;width:100%;min-height:34px;padding:7px 0;border-bottom:1px solid color-mix(in srgb,var(--primary-text-color) 8%,transparent);text-align:left}
 .prow span{font-size:13px;color:var(--muted)}
 .prow strong{font-size:14px;font-weight:650;letter-spacing:-.2px}
@@ -149,6 +151,7 @@ function paramValue(hass, id, kind) {
   const entity = rawState(hass, id);
   if (!entity || ["unknown", "unavailable", "none", ""].includes(entity.state)) return "—";
   if (kind === "door") return entity.state === "on" ? "Open" : "Closed";
+  if (kind === "switch") return entity.state === "on" ? "On" : entity.state === "off" ? "Off" : entity.state;
   if (kind === "text") return entity.state;
   return reading(hass, id, kind);
 }
@@ -164,7 +167,9 @@ class ZeeLive extends ZeePage {
   block(title, items, sub) {
     const body = this.rows(items);
     if (!body) return "";
-    return `<section class="psec">${sub ? `<div class="psub">${esc(title)}</div>` : `<h3>${esc(title)}</h3>`}${body}</section>`;
+    const tag = sub ? "pgroup" : "psec";
+    const heading = sub ? `<div class="psub">${esc(title)}</div>` : `<h3>${esc(title)}</h3>`;
+    return `<section class="${tag}">${heading}${body}</section>`;
   }
   render() {
     if (!this._hass) return;
@@ -191,6 +196,8 @@ class ZeeLive extends ZeePage {
     const heatOn = heater && !dead(heater);
     const heatMode = heatOn ? (heater.attributes?.operation_mode || heater.state) : "";
     const showHeatMode = heatMode && !["unknown", "unavailable", "none", ""].includes(String(heatMode));
+    const acHumN = acOn ? Number(ac.attributes?.current_humidity) : NaN;
+    const acHum = Number.isFinite(acHumN) ? `${Math.round(acHumN)} %` : "—";
     const acNow = acOn && Number.isFinite(Number(ac.attributes?.current_temperature)) ? `${Number(ac.attributes.current_temperature).toFixed(1)} °C` : "—";
     const acTarget = acOn && Number.isFinite(Number(ac.attributes?.temperature)) ? `${Number(ac.attributes.temperature).toFixed(1)} °C` : "—";
     const heatNow = heatOn && Number.isFinite(Number(heater.attributes?.current_temperature)) ? `${Number(heater.attributes.current_temperature).toFixed(1)} °C` : paramValue(h, "sensor.151732606824523_current_temperature", 1);
@@ -204,20 +211,22 @@ class ZeeLive extends ZeePage {
         ["Mode", "sensor.zee_refrigerator_mode", "text"],
       ], true),
       this.block("Smart plug", [
+        ["Status", "switch.ac_smart_plug_socket_1", "switch"],
         ["Power", "sensor.ac_smart_plug_power", 0],
         ["Current", "sensor.ac_smart_plug_current", 2],
         ["Voltage", "sensor.ac_smart_plug_voltage", 0],
         plugFreq && !dead(plugFreq) ? ["Frequency", plugFreq.entity_id, 1] : null,
       ], true),
-      acOn ? `<section class="psec"><div class="psub">Midea AC</div>${this.rows([
+      acOn ? `<section class="pgroup"><div class="psub">Midea AC</div>${this.rows([
         acPower ? ["Power", acPower, 0] : null,
         acCurrent ? ["Current", acCurrent, 2] : null,
         acVoltage ? ["Voltage", acVoltage, 0] : null,
         ["Current temp", acId, "skip"],
         ["Target temp", acId, "skip"],
+        ["Humidity", acId, "skip"],
         ["Mode", acId, "skip"],
       ].filter(Boolean))}</section>` : "",
-      heatOn ? `<section class="psec"><div class="psub">Water heater</div>${this.rows([
+      heatOn ? `<section class="pgroup"><div class="psub">Water heater</div>${this.rows([
         ["Current temp", "sensor.151732606824523_current_temperature", 1],
         ["Target temp", WATER_HEATER, "skip"],
         ["Time left", "sensor.151732606824523_heating_time_remaining", 0],
@@ -230,6 +239,7 @@ class ZeeLive extends ZeePage {
         ["Air temp", "sensor.goodwe_inverter_temperature_air", 1],
         ["Rad temp", "sensor.goodwe_inverter_temperature_radiator", 1],
         ["Work mode", "sensor.goodwe_work_mode", "text"],
+        ["Error", "sensor.goodwe_errors", "text"],
       ])}
       ${this.block("Battery", [
         ["Power", "sensor.goodwe_battery_power", 0],
@@ -247,6 +257,11 @@ class ZeeLive extends ZeePage {
         ["Current", "sensor.goodwe_meter_l1_current", 1],
         ["Frequency", "sensor.goodwe_on_grid_l1_frequency", 2],
       ])}
+      ${this.block("Load", [
+        ["Power", "sensor.goodwe_house_consumption", 0],
+        ["Current", "sensor.goodwe_back_up_l1_current", 1],
+        ["Voltage", "sensor.goodwe_back_up_l1_voltage", 1],
+      ])}
       ${this.block("PV", [
         ["PV power", "sensor.goodwe_pv_power", 0],
         ["PV1 voltage", "sensor.goodwe_pv1_voltage", 1],
@@ -257,17 +272,21 @@ class ZeeLive extends ZeePage {
       ${this.block("System", [
         ["CPU", "sensor.localhost_cpu_usage", 0],
         ["Memory", "sensor.localhost_memory_usage", 0],
+        ["Disk", stateOf(h, "sensor.localhost_etc_hostname_disk_usage") ? "sensor.localhost_etc_hostname_disk_usage" : "sensor.localhost_etc_hosts_disk_usage", 0],
         ["Uptime", "sensor.localhost_uptime", "uptime"],
         ["Package temp", "sensor.localhost_package_id_0_temperature", 1],
       ])}
-      <section class="psec"><h3>Appliances</h3>${appliances}</section>
+      <section class="psec"><h3>Appliances</h3><div class="appliances">${appliances}</div></section>
     </div>`);
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => {
       const id = button.dataset.id;
       const strong = button.querySelector("strong");
       if (id === acId && strong) {
         const label = button.querySelector("span").textContent;
-        strong.textContent = label === "Current temp" ? acNow : label === "Target temp" ? acTarget : labelOf(ac.state);
+        if (label === "Current temp") strong.textContent = acNow;
+        else if (label === "Target temp") strong.textContent = acTarget;
+        else if (label === "Humidity") strong.textContent = acHum;
+        else if (label === "Mode") strong.textContent = labelOf(ac.state);
       }
       if (id === WATER_HEATER && strong && heatOn) {
         const label = button.querySelector("span").textContent;
