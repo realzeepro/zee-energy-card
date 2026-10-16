@@ -1,7 +1,7 @@
 // Zee Energy Card — mobile dashboard modules for Goodwe solar, cameras, and house sensors.
 import "./accent-panels.js";
 import "./appearance-presets.js";
-import "./energy-components.js";
+import "./energy-components.js?v=3";
 import "./energy-overview-controls.js";
 import "./energy-overview-core.js";
 import "./energy-overview.js";
