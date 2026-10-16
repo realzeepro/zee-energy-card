@@ -1,7 +1,7 @@
-// Zee Energy Card â€” mobile dashboard modules for Goodwe solar, cameras, and house sensors.
+// Zee Energy Card - mobile dashboard modules for Goodwe solar, cameras, and house sensors.
 import "./accent-panels.js";
 import "./appearance-presets.js";
-import "./energy-components.js?v=3";
+import "./energy-components.js?v=5";
 import "./energy-overview-controls.js";
 import "./energy-overview-core.js";
 import "./energy-overview.js";
@@ -9,11 +9,11 @@ import "./energy-statistics.js";
 import "./energy-health-balance.js";
 import "./energy-flow-animation.js";
 import "./energy-flow-colours.js";
-import "./floating-nav-icons.js";
-import "./house-scene-base.js?v=4";
-import "./house-scene-variant-base.js";
+import "./floating-nav-icons.js?v=5";
+import "./house-scene-base.js?v=5";
+import "./house-scene-variant-base.js?v=5";
 import "./house-scene.js";
-import "./house-weather.js?v=4";
+import "./house-weather.js?v=5";
 import "./house-weather-variant.js";
 import "./power-metrics.js";
 const CSS = `
@@ -22,7 +22,9 @@ const CSS = `
 button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;-webkit-tap-highlight-color:transparent}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 h2,p{margin:0}
-.panel{padding:15px;border-radius:22px;background:linear-gradient(125deg,color-mix(in srgb,var(--accent) 8%,var(--base)),color-mix(in srgb,var(--base) 55%,transparent));border:1px solid color-mix(in srgb,var(--accent) 13%,transparent);border-top:2px solid color-mix(in srgb,var(--accent) 32%,transparent)}
+.panel{position:relative;overflow:hidden;padding:15px;border-radius:22px;background:linear-gradient(125deg,color-mix(in srgb,var(--accent) 8%,var(--base)),color-mix(in srgb,var(--base) 55%,transparent));border:1px solid color-mix(in srgb,var(--accent) 13%,transparent);border-top:2px solid color-mix(in srgb,var(--accent) 32%,transparent)}
+.banner{position:absolute;z-index:0;left:-20px;right:-10px;top:-28px;height:148px;background:var(--banner) center 30%/cover no-repeat;opacity:.5;pointer-events:none;mask-image:linear-gradient(#000 20%,transparent 92%);-webkit-mask-image:linear-gradient(#000 20%,transparent 92%)}
+.head,.hero,.facts,.cams,.wide,.row,.meta,.lightbox{position:relative;z-index:1}
 .eyebrow{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:750}
 .head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}
 h2{font-size:20px;font-weight:680;letter-spacing:-.4px}
@@ -148,8 +150,9 @@ class ZeePage extends HTMLElement {
   more(id) {
     this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: id }, bubbles: true, composed: true }));
   }
-  shell(title, eyebrow, body) {
-    this.shadowRoot.innerHTML = `<style>${CSS}</style><section class="panel"><div class="head"><div><div class="eyebrow">${esc(eyebrow)}</div><h2>${esc(title)}</h2></div></div>${body}</section>`;
+  shell(title, eyebrow, body, image) {
+    const banner = image ? `<div class="banner" style="--banner:url('${esc(image)}')"></div>` : "";
+    this.shadowRoot.innerHTML = `<style>${CSS}</style><section class="panel">${banner}<div class="head"><div><div class="eyebrow">${esc(eyebrow)}</div><h2>${esc(title)}</h2></div></div>${body}</section>`;
   }
 }
 
@@ -206,7 +209,7 @@ class ZeeCameras extends ZeePage {
     const body = open
       ? `<div class="lightbox"><button class="back" id="cam-back" type="button">Back to cameras</button><div class="eyebrow">${esc(open[1])}</div><img data-cam="${esc(open[0])}" alt="${esc(open[1])}"></div>`
       : `<div class="cams">${cams.map(([id, name]) => `<button class="cam" data-cam-open="${esc(id)}" type="button" aria-label="Enlarge ${esc(name)}"><img data-cam="${esc(id)}" alt=""><span>${esc(name)}</span></button>`).join("")}</div>`;
-    this.shell("Cameras", "Security", body);
+    this.shell("Cameras", "Security", body, "/local/myhome-dashboard-banners/security-v2.png");
     const back = this.shadowRoot.querySelector("#cam-back");
     if (back) back.onclick = () => { this._open = ""; this.refresh(); };
     this.shadowRoot.querySelectorAll("[data-cam-open]").forEach((button) => {
@@ -226,8 +229,9 @@ class ZeeCameras extends ZeePage {
 }
 
 class ZeeAppliances extends ZeePage {
-  panel(eyebrow, title, body) {
-    return `<section class="panel"><div class="head"><div><div class="eyebrow">${esc(eyebrow)}</div><h2>${esc(title)}</h2></div></div>${body}</section>`;
+  panel(eyebrow, title, body, image) {
+    const banner = image ? `<div class="banner" style="--banner:url('${esc(image)}')"></div>` : "";
+    return `<section class="panel">${banner}<div class="head"><div><div class="eyebrow">${esc(eyebrow)}</div><h2>${esc(title)}</h2></div></div>${body}</section>`;
   }
   modes(modes, active, kind, off) {
     return `<div class="modes">${modes.map((mode) => `<button class="mode${mode === active ? " on" : ""}" type="button" data-${kind}="${esc(mode)}"${off ? " disabled" : ""}>${esc(labelOf(mode))}</button>`).join("")}</div>`;
@@ -263,7 +267,7 @@ class ZeeAppliances extends ZeePage {
           <button data-id="sensor.zee_refrigerator_fridge_temperature" type="button"><div class="kicker">Fridge</div><div class="temp">${esc(reading(h, "sensor.zee_refrigerator_fridge_temperature", 1))}</div><div class="meta">Target ${esc(reading(h, "sensor.zee_refrigerator_fridge_target_temperature", 1))}</div><span class="chip${fridgeOpen ? " warn" : ""}">${esc(fridgeDoor)}</span></button>
           <button data-id="sensor.zee_refrigerator_freezer_temperature" type="button"><div class="kicker">Freezer</div><div class="temp">${esc(reading(h, "sensor.zee_refrigerator_freezer_temperature", 1))}</div><div class="meta">Target ${esc(reading(h, "sensor.zee_refrigerator_freezer_target_temperature", 1))}</div><span class="chip${freezerOpen ? " warn" : ""}">${esc(freezerDoor)}</span></button>
         </div>
-        <div class="meta">Mode ${esc(mode ? mode.state : "—")}</div>`)}
+        <div class="meta">Mode ${esc(mode ? mode.state : "—")}</div>`, "/local/myhome-dashboard-banners/house.png")}
       ${this.panel("Climate", "Midea AC", `
         <div class="row"><div><div class="kicker">${esc(ac?.attributes?.friendly_name || "Midea AC")}</div><div class="temp">${acOff || !Number.isFinite(acNow) ? "—" : acNow.toFixed(1) + "°C"}</div><div class="meta">${acOff ? "Unavailable" : esc(labelOf(ac.state))}</div></div><span class="chip${acOff ? " warn" : ""}">${acOff ? "Unavailable" : "Live"}</span></div>
         <div class="stepper"><button class="step" type="button" data-ac-step="-0.5"${acOff ? " disabled" : ""}>−</button><div><div class="kicker">Target</div><div class="target">${Number.isFinite(acTarget) ? acTarget.toFixed(1) + "°C" : "—"}</div></div><button class="step" type="button" data-ac-step="0.5"${acOff ? " disabled" : ""}>+</button></div>
@@ -319,7 +323,7 @@ class ZeeClimate extends ZeePage {
   }
   render() {
     if (!this._hass) return;
-    this.shell("Climate", "Rooms", `<div class="hero">${this.room("Room 1", "sensor.temperature_sensor_temperature", "sensor.temperature_sensor_humidity", "sensor.temperature_sensor_battery")}${this.room("Room 2", "sensor.temperature_sensor_2_temperature", "sensor.temperature_sensor_2_humidity", "sensor.temperature_sensor_2_battery")}</div>`);
+    this.shell("Climate", "Rooms", `<div class="hero">${this.room("Room 1", "sensor.temperature_sensor_temperature", "sensor.temperature_sensor_humidity", "sensor.temperature_sensor_battery")}${this.room("Room 2", "sensor.temperature_sensor_2_temperature", "sensor.temperature_sensor_2_humidity", "sensor.temperature_sensor_2_battery")}</div>`, "/local/myhome-dashboard-banners/myhome.png");
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
   }
 }
@@ -364,7 +368,7 @@ class ZeeSystem extends ZeePage {
         ["Export limit", "number.goodwe_grid_export_limit", 0],
         ["DoD on grid", "number.goodwe_depth_of_discharge_on_grid", 0],
         ["Errors", "sensor.goodwe_errors"],
-      ])}`);
+      ])}`, "/local/myhome-dashboard-banners/lab.png");
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
   }
 }
