@@ -535,12 +535,11 @@ class ZeeSystem extends ZeePage {
 }
 
 class ZeeEnergy extends ZeePage {
-  rows(items) {
-    return items.filter(Boolean).map(([name, id, kind]) => `<button class="prow" type="button" data-id="${esc(id)}"><span>${esc(name)}</span><strong>${esc(paramValue(this._hass, id, kind))}</strong></button>`).join("");
+  tiles(items) {
+    return `<div class="facts">${items.filter(Boolean).map(([name, id, kind]) => `<button class="fact" type="button" data-id="${esc(id)}"><small>${esc(name)}</small><strong>${esc(paramValue(this._hass, id, kind))}</strong></button>`).join("")}</div>`;
   }
   block(title, items, sub) {
-    const body = this.rows(items);
-    if (!body) return "";
+    const body = this.tiles(items);
     const heading = sub ? `<div class="psub">${esc(title)}</div>` : `<h3>${esc(title)}</h3>`;
     return `<section class="${sub ? "pgroup" : "psec"}">${heading}${body}</section>`;
   }
@@ -554,7 +553,7 @@ class ZeeEnergy extends ZeePage {
       ["Current", `sensor.goodwe_pv${n}_current`, 1],
     ];
     this.shell("Energy", "Goodwe", `<div class="plist">
-      <section class="psec"><h3>PV</h3>${this.rows([["PV power", "sensor.goodwe_pv_power", 0]])}<div class="appliances">${this.block("PV1", pv(1), true)}${this.block("PV2", pv(2), true)}</div></section>
+      <section class="psec"><h3>PV</h3>${this.tiles([["PV power", "sensor.goodwe_pv_power", 0]])}<div class="appliances">${this.block("PV1", pv(1), true)}${this.block("PV2", pv(2), true)}</div></section>
       ${this.block("Inverter", [
         ["Air temp", "sensor.goodwe_inverter_temperature_air", 1],
         ["Rad temp", "sensor.goodwe_inverter_temperature_radiator", 1],
