@@ -44,9 +44,10 @@ for f in files:
    if 0xe1<=kind<=0xef or kind==0xfe:errors.append(f'{f.name}: JPEG metadata chunk')
    i+=n
 paths={v['path'] for v in config['views']}
-for destination in re.findall(r'/dashboard-zee-energy/([a-z0-9_]+)',json.dumps(config)):
+for destination in re.findall(r'/dashboard-zee/([a-z0-9_]+)',json.dumps(config)):
  if destination not in paths:errors.append(f'Missing view {destination}')
 for resource in json.loads((root/'resources/resources.json').read_text()):
- if resource['url'].startswith('/local/') and not (root/resource['url'][7:]).exists():errors.append('Missing registered module '+resource['url'])
+ rel=resource['url'][7:].split('?',1)[0]
+ if resource['url'].startswith('/local/') and not (root/rel).exists():errors.append('Missing registered module '+resource['url'])
 if errors:print('\n'.join(errors));sys.exit(1)
 print(f'PASS: {len(config["views"])} views; imports, literal asset paths, navigation, resource paths and privacy patterns checked. Visual review and history review are separate.')

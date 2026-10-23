@@ -1,5 +1,8 @@
 {
   "title": "Zee Energy",
+  "kiosk_mode": {
+    "hide_header": true
+  },
   "views": [
     {
       "title": "Home",
@@ -14,7 +17,7 @@
             {
               "type": "custom:myhome-floating-nav-v24",
               "active": "home",
-              "dashboard": "dashboard-zee-energy",
+              "dashboard": "dashboard-zee",
               "view": "home",
               "grid_options": {
                 "columns": "full",
@@ -35,8 +38,10 @@
       "title": "Energy",
       "path": "energy",
       "icon": "mdi:solar-power",
+      "subview": true,
+      "back_path": "/dashboard-zee/home",
       "type": "sections",
-      "max_columns": 1,
+      "max_columns": 2,
       "sections": [
         {
           "type": "grid",
@@ -44,7 +49,7 @@
             {
               "type": "custom:myhome-floating-nav-v24",
               "active": "energy",
-              "dashboard": "dashboard-zee-energy",
+              "dashboard": "dashboard-zee",
               "view": "energy",
               "grid_options": {
                 "columns": "full",
@@ -52,7 +57,73 @@
               }
             },
             {
-              "type": "custom:zee-energy-board"
+              "type": "custom:myhome-energy-overview-v6",
+              "home_path": "/dashboard-zee/home"
+            },
+            {
+              "type": "custom:accent-myhome-energy-statistics-v13"
+            },
+            {
+              "type": "custom:accent-myhome-power-metrics-v4"
+            },
+            {
+              "type": "custom:zee-metric-board",
+              "title": "PV Strings",
+              "eyebrow": "Goodwe",
+              "columns": 3,
+              "items": [
+                {"entity": "sensor.goodwe_pv1_power", "name": "PV1 Power", "digits": 0},
+                {"entity": "sensor.goodwe_pv1_voltage", "name": "PV1 Voltage", "digits": 1},
+                {"entity": "sensor.goodwe_pv1_current", "name": "PV1 Current", "digits": 1},
+                {"entity": "sensor.goodwe_pv2_power", "name": "PV2 Power", "digits": 0},
+                {"entity": "sensor.goodwe_pv2_voltage", "name": "PV2 Voltage", "digits": 1},
+                {"entity": "sensor.goodwe_pv2_current", "name": "PV2 Current", "digits": 1}
+              ]
+            }
+          ]
+        },
+        {
+          "type": "grid",
+          "cards": [
+            {
+              "type": "custom:zee-metric-board",
+              "title": "Battery",
+              "eyebrow": "Goodwe",
+              "columns": 3,
+              "items": [
+                {"entity": "sensor.goodwe_battery_state_of_charge", "name": "State of Charge (SOC)", "digits": 0},
+                {"entity": "sensor.goodwe_battery_state_of_health", "name": "State of Health (SOH)", "digits": 0},
+                {"entity": "sensor.goodwe_battery_mode", "name": "Battery State", "text": true},
+                {"entity": "sensor.goodwe_battery_power", "name": "Battery Power", "digits": 0},
+                {"entity": "sensor.goodwe_battery_voltage", "name": "Battery Voltage", "digits": 1},
+                {"entity": "sensor.goodwe_battery_current", "name": "Battery Current", "digits": 1},
+                {"entity": "sensor.goodwe_battery_temperature", "name": "BMS Temperature", "digits": 1},
+                {"entity": "sensor.goodwe_battery_max_cell_temperature", "name": "Maximum Cell Temp", "digits": 1},
+                {"entity": "sensor.goodwe_battery_min_cell_temperature", "name": "Minimum Cell Temp", "digits": 1},
+                {"entity": "sensor.goodwe_battery_max_cell_voltage", "name": "Maximum Cell Voltage", "digits": 3},
+                {"entity": "sensor.goodwe_battery_min_cell_voltage", "name": "Minimum cell voltage", "digits": 3},
+                {"entity": "sensor.goodwe_battery_software_version", "name": "BMS Version", "text": true}
+              ]
+            },
+            {
+              "type": "custom:zee-metric-board",
+              "title": "Statistics",
+              "eyebrow": "Goodwe",
+              "columns": 2,
+              "items": [
+                {"entity": "sensor.goodwe_today_s_pv_generation", "name": "PV Gen Today", "digits": 1},
+                {"entity": "sensor.goodwe_total_pv_generation", "name": "PV Gen Total", "digits": 1},
+                {"entity": "sensor.goodwe_today_load", "name": "House Load Today", "digits": 1},
+                {"entity": "sensor.goodwe_total_load", "name": "House Load Total", "digits": 1},
+                {"entity": "sensor.goodwe_today_import_meter_calculated", "name": "Grid import today", "digits": 1},
+                {"entity": "sensor.goodwe_meter_total_energy_import", "name": "Grid Import Total", "digits": 1},
+                {"entity": "sensor.goodwe_today_export_meter_calculated", "name": "Grid Export Today", "digits": 1},
+                {"entity": "sensor.goodwe_meter_total_energy_export", "name": "Grid Export Total", "digits": 1},
+                {"entity": "sensor.goodwe_today_battery_charge", "name": "Battery Charged Today", "digits": 1},
+                {"entity": "sensor.goodwe_total_battery_charge", "name": "Battery Charged Total", "digits": 1},
+                {"entity": "sensor.goodwe_today_battery_discharge", "name": "Battery Discharge today", "digits": 1},
+                {"entity": "sensor.goodwe_total_battery_discharge", "name": "Battery Discharge Total", "digits": 1}
+              ]
             }
           ]
         }
@@ -62,6 +133,8 @@
       "title": "Cameras",
       "path": "cameras",
       "icon": "mdi:cctv",
+      "subview": true,
+      "back_path": "/dashboard-zee/home",
       "type": "sections",
       "max_columns": 1,
       "sections": [
@@ -71,7 +144,7 @@
             {
               "type": "custom:myhome-floating-nav-v24",
               "active": "cameras",
-              "dashboard": "dashboard-zee-energy",
+              "dashboard": "dashboard-zee",
               "view": "cameras",
               "grid_options": {
                 "columns": "full",
@@ -89,6 +162,8 @@
       "title": "Appliances",
       "path": "appliances",
       "icon": "mdi:fridge",
+      "subview": true,
+      "back_path": "/dashboard-zee/home",
       "type": "sections",
       "max_columns": 1,
       "sections": [
@@ -98,7 +173,7 @@
             {
               "type": "custom:myhome-floating-nav-v24",
               "active": "appliances",
-              "dashboard": "dashboard-zee-energy",
+              "dashboard": "dashboard-zee",
               "view": "appliances",
               "grid_options": {
                 "columns": "full",
@@ -107,30 +182,6 @@
             },
             {
               "type": "custom:zee-appliances"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Climate",
-      "path": "climate",
-      "icon": "mdi:thermometer",
-      "type": "sections",
-      "max_columns": 1,
-      "sections": [
-        {
-          "type": "grid",
-          "cards": [
-            {
-              "type": "custom:myhome-floating-nav-v24",
-              "active": "climate",
-              "dashboard": "dashboard-zee-energy",
-              "view": "climate",
-              "grid_options": {
-                "columns": "full",
-                "rows": "auto"
-              }
             },
             {
               "type": "custom:zee-climate"
@@ -143,6 +194,8 @@
       "title": "System",
       "path": "system",
       "icon": "mdi:server",
+      "subview": true,
+      "back_path": "/dashboard-zee/home",
       "type": "sections",
       "max_columns": 1,
       "sections": [
@@ -152,7 +205,7 @@
             {
               "type": "custom:myhome-floating-nav-v24",
               "active": "system",
-              "dashboard": "dashboard-zee-energy",
+              "dashboard": "dashboard-zee",
               "view": "system",
               "grid_options": {
                 "columns": "full",

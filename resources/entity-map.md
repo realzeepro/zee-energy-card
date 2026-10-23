@@ -7,16 +7,19 @@ Mapped from the existing Zee skycard configuration. Cards read these entity IDs 
 | Reading | Entity | Notes |
 |---|---|---|
 | PV power | `sensor.goodwe_pv_power` | |
-| PV1 power / voltage | `sensor.goodwe_pv1_power`, `sensor.goodwe_pv1_voltage` | |
-| PV2 power / voltage | `sensor.goodwe_pv2_power`, `sensor.goodwe_pv2_voltage` | |
+| PV1 power / voltage / current | `sensor.goodwe_pv1_power`, `sensor.goodwe_pv1_voltage`, `sensor.goodwe_pv1_current` | |
+| PV2 power / voltage / current | `sensor.goodwe_pv2_power`, `sensor.goodwe_pv2_voltage`, `sensor.goodwe_pv2_current` | |
 | House load | `sensor.goodwe_house_consumption` | |
 | Grid power | `sensor.goodwe_active_power` | Sign flipped. Positive means import. |
 | Grid voltage | `sensor.goodwe_on_grid_l1_voltage` | |
 | Grid frequency | `sensor.goodwe_on_grid_l1_frequency` | |
 | Backup voltage | `sensor.goodwe_back_up_l1_voltage` | |
+| Backup current | `sensor.goodwe_back_up_l1_current` | Used by the home-scene HOME label. |
 | Today PV | `sensor.goodwe_today_s_pv_generation` | |
 | Today load | `sensor.goodwe_today_load` | |
 | Today import | `sensor.goodwe_today_energy_import` | |
+| Today import (calculated) | `sensor.goodwe_today_import_meter_calculated` | Used by the home-scene GRID label and the Energy page. |
+| Today export (calculated) | `sensor.goodwe_today_export_meter_calculated` | Used by the home-scene GRID label and the Energy page. |
 | Lifetime PV | `sensor.goodwe_total_pv_generation` | |
 | Lifetime load | `sensor.goodwe_total_load` | |
 | Lifetime import | `sensor.goodwe_meter_total_energy_import` | |
@@ -29,7 +32,10 @@ Mapped from the existing Zee skycard configuration. Cards read these entity IDs 
 | Power | `sensor.goodwe_battery_power` | Sign flipped. Positive means charging. |
 | State of charge | `sensor.goodwe_battery_state_of_charge` | |
 | State of health | `sensor.goodwe_battery_state_of_health` | |
+| Battery mode / state | `sensor.goodwe_battery_mode` | |
+| Voltage / current | `sensor.goodwe_battery_voltage`, `sensor.goodwe_battery_current` | |
 | BMS temperature | `sensor.goodwe_battery_temperature` | |
+| BMS software version | `sensor.goodwe_battery_software_version` | |
 | Min / max cell voltage | `sensor.goodwe_battery_min_cell_voltage`, `sensor.goodwe_battery_max_cell_voltage` | |
 | Min / max cell temperature | `sensor.goodwe_battery_min_cell_temperature`, `sensor.goodwe_battery_max_cell_temperature` | |
 | Charged today | `sensor.goodwe_today_battery_charge` | |
@@ -64,4 +70,4 @@ Mapped from the existing Zee skycard configuration. Cards read these entity IDs 
 
 ## Not mapped
 
-Solcast forecast, energy-learning, import cost, and export credit. Those MyHome cards are omitted so the dashboard does not reference entities this system does not have.
+Solcast forecast, energy-learning, and dedicated import-cost/export-credit entities. Grid cost is computed in-card from the PKR tariff entered on the Home scene, so no external cost sensor is required.

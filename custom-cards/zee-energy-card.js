@@ -1,21 +1,21 @@
 // Zee Energy Card - mobile dashboard modules for Goodwe solar, cameras, and house sensors.
 import "./accent-panels.js";
 import "./appearance-presets.js";
-import "./energy-components.js?v=5";
+import "./energy-components.js?v=11";
 import "./energy-overview-controls.js";
 import "./energy-overview-core.js";
 import "./energy-overview.js";
-import "./energy-statistics.js";
+import "./energy-statistics.js?v=12";
 import "./energy-health-balance.js";
-import "./energy-flow-animation.js";
-import "./energy-flow-colours.js";
-import "./floating-nav-icons.js?v=6";
-import "./house-scene-base.js?v=8";
-import "./house-scene-variant-base.js?v=8";
-import "./house-scene.js";
-import "./house-weather.js?v=8";
-import "./house-weather-variant.js";
-import "./power-metrics.js";
+import "./energy-flow-animation.js?v=12";
+import "./energy-flow-colours.js?v=12";
+import "./floating-nav-icons.js?v=13";
+import "./house-scene-base.js?v=12";
+import "./house-scene-variant-base.js?v=11";
+import "./house-scene.js?v=12";
+import "./house-weather.js?v=12";
+import "./house-weather-variant.js?v=11";
+import "./power-metrics.js?v=11";
 const CSS = `
 :host{display:block;font-family:Nunito,ui-rounded,system-ui,sans-serif;color:var(--primary-text-color,#e9edf0);--muted:var(--secondary-text-color,#909a9e);--base:var(--card-background-color,#1b2025);--accent:var(--myhome-accent,#d5ab6c)}
 *{box-sizing:border-box}
@@ -30,6 +30,10 @@ h2,p{margin:0}
 h2{font-size:20px;font-weight:680;letter-spacing:-.4px}
 .sub{font-size:11px;color:var(--muted)}
 .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.facts.compact{gap:6px}
+.facts.compact .fact{min-height:64px;padding:9px 8px}
+.facts.compact .fact small{font-size:9px;margin-bottom:4px}
+.facts.compact .fact strong{font-size:15px}
 .plist{display:flex;flex-direction:column;gap:18px}
 .psec h3{margin:0 0 2px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:750}
 .appliances{display:flex;flex-direction:column;gap:12px;margin-top:10px}
@@ -42,7 +46,7 @@ h2{font-size:20px;font-weight:680;letter-spacing:-.4px}
 .fact small{display:block;font-size:10px;color:var(--muted);margin-bottom:6px}
 .fact strong{display:block;font-size:18px;font-weight:650;letter-spacing:-.4px;line-height:1.2}
 .fact em{display:block;margin-top:4px;font-style:normal;font-size:10px;color:var(--accent)}
-.cams{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cams{display:grid;grid-template-columns:1fr;gap:8px}
 .cam{position:relative;padding:0;border-radius:16px;overflow:hidden;background:#0d1218;min-height:110px;border:1px solid color-mix(in srgb,var(--accent) 16%,transparent)}
 .cam img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
 .cam span{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:750;padding:4px 8px;border-radius:999px;background:#000a}
@@ -321,7 +325,9 @@ class ZeeMetrics extends ZeePage {
   render() {
     if (!this.config || !this._hass) return;
     const items = this.config.items || [];
-    this.shell(this.config.title || "Metrics", this.config.eyebrow || "Energy", `<div class="facts">${items.map((item) => `<button class="fact" data-id="${esc(item.entity)}"><small>${esc(item.name)}</small><strong>${esc(reading(this._hass, item.entity, item.digits))}</strong></button>`).join("")}</div>`);
+    const columns = Math.max(1, Math.min(4, Number(this.config.columns) || 2));
+    const compact = columns >= 3 ? " compact" : "";
+    this.shell(this.config.title || "Metrics", this.config.eyebrow || "Energy", `<div class="facts${compact}" style="grid-template-columns:repeat(${columns},minmax(0,1fr))">${items.map((item) => { const state = rawState(this._hass, item.entity); const value = item.text ? (dead(state) ? "—" : state.state) : reading(this._hass, item.entity, item.digits); return `<button class="fact" data-id="${esc(item.entity)}"><small>${esc(item.name)}</small><strong>${esc(value)}</strong></button>`; }).join("")}</div>`);
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
   }
 }
@@ -414,7 +420,7 @@ class ZeeAppliances extends ZeePage {
     const heater = rawState(h, WATER_HEATER);
     const heatOff = dead(heater);
     const heatAttrs = heater?.attributes || {};
-    const heatModes = heatAttrs.operation_list?.length ? heatAttrs.operation_list : ["off", "eco", "electric", "performance", "heat_pump"];
+    const heatModes = (heatAttrs.operation_list || []).filter((m) => m !== "off");
     const heatTarget = Number.isFinite(Number(heatAttrs.temperature)) ? Number(heatAttrs.temperature) : Number(stateOf(h, "sensor.151732606824523_current_temperature")?.state);
     const heatNow = Number.isFinite(Number(heatAttrs.current_temperature)) ? Number(heatAttrs.current_temperature) : null;
     const heatActive = heatOff ? "" : (heatAttrs.operation_mode || heater.state);
@@ -431,13 +437,15 @@ class ZeeAppliances extends ZeePage {
         <div class="meta">Mode ${esc(mode ? mode.state : "—")}</div>`, "/local/myhome-dashboard-banners/house.png")}
       ${this.panel("Climate", "Midea AC", `
         <div class="row"><div><div class="kicker">${esc(ac?.attributes?.friendly_name || "Midea AC")}</div><div class="temp">${acOff || !Number.isFinite(acNow) ? "—" : acNow.toFixed(1) + "°C"}</div><div class="meta">${acOff ? "Unavailable" : esc(labelOf(ac.state))}</div></div><span class="chip${acOff ? " warn" : ""}">${acOff ? "Unavailable" : "Live"}</span></div>
+        <div class="row"><div><div class="kicker">Power</div><div class="meta">${acOff ? "Unavailable" : ac.state === "off" ? "Off" : "On"}</div></div><button class="toggle${!acOff && ac.state !== "off" ? " on" : ""}" id="ac-power" type="button"${acOff ? " disabled" : ""}>${acOff ? "Unavailable" : ac.state === "off" ? "Turn on" : "Turn off"}</button></div>
         <div class="stepper"><button class="step" type="button" data-ac-step="-0.5"${acOff ? " disabled" : ""}>−</button><div><div class="kicker">Target</div><div class="target">${Number.isFinite(acTarget) ? acTarget.toFixed(1) + "°C" : "—"}</div></div><button class="step" type="button" data-ac-step="0.5"${acOff ? " disabled" : ""}>+</button></div>
         ${this.modes(acModes, acOff ? "" : ac.state, "ac-mode", acOff)}
         ${fans.length ? `<div class="group">Fan</div>${this.modes(fans, acAttrs.fan_mode, "ac-fan", acOff)}` : ""}`)}
       ${this.panel("Water", "Water heater", `
         <div class="row"><div><div class="kicker">Current</div><div class="temp">${heatOff ? "—" : esc(heatNow === null ? reading(h, "sensor.151732606824523_current_temperature", 1) : heatNow.toFixed(1) + "°C")}</div><div class="meta">${heatOff ? "Unavailable" : esc(labelOf(heatActive))}${heating?.state === "on" ? " · Heating" : ""}</div></div><span class="chip${heatOff ? " warn" : ""}">${heatOff ? "Unavailable" : "Live"}</span></div>
+        <div class="row"><div><div class="kicker">Power</div><div class="meta">${heatOff ? "Unavailable" : heater.state === "off" ? "Off" : "On"}</div></div><button class="toggle${!heatOff && heater.state !== "off" ? " on" : ""}" id="wh-power" type="button"${heatOff ? " disabled" : ""}>${heatOff ? "Unavailable" : heater.state === "off" ? "Turn on" : "Turn off"}</button></div>
         <div class="stepper"><button class="step" type="button" data-wh-step="-1"${heatOff ? " disabled" : ""}>−</button><div><div class="kicker">Target</div><div class="target">${Number.isFinite(heatTarget) && !heatOff ? heatTarget.toFixed(0) + "°C" : "—"}</div></div><button class="step" type="button" data-wh-step="1"${heatOff ? " disabled" : ""}>+</button></div>
-        ${this.modes(heatModes, heatActive, "wh-mode", heatOff)}
+        ${heatModes.length ? this.modes(heatModes, heatActive, "wh-mode", heatOff) : ""}
         <div class="facts" style="margin-top:12px">
           <button class="fact" data-id="sensor.151732606824523_heating_power" type="button"><small>Power</small><strong>${esc(reading(h, "sensor.151732606824523_heating_power", 0))}</strong></button>
           <button class="fact" data-id="sensor.151732606824523_heating_time_remaining" type="button"><small>Time left</small><strong>${esc(reading(h, "sensor.151732606824523_heating_time_remaining", 0))}</strong></button>
@@ -470,6 +478,10 @@ class ZeeAppliances extends ZeePage {
       const next = Math.max(min, Math.min(max, base + Number(button.dataset.whStep)));
       h.callService("water_heater", "set_temperature", { entity_id: WATER_HEATER, temperature: next });
     }; });
+    const acPower = this.shadowRoot.querySelector("#ac-power");
+    if (acPower) acPower.onclick = () => { if (!acId || acOff) return; h.callService("climate", ac.state === "off" ? "turn_on" : "turn_off", { entity_id: acId }); };
+    const whPower = this.shadowRoot.querySelector("#wh-power");
+    if (whPower) whPower.onclick = () => { if (heatOff) return; h.callService("water_heater", heater.state === "off" ? "turn_on" : "turn_off", { entity_id: WATER_HEATER }); };
     const toggle = this.shadowRoot.querySelector("#plug");
     if (toggle) toggle.onclick = () => { if (!plugOff) h.callService("switch", "toggle", { entity_id: "switch.ac_smart_plug_socket_1" }); };
   }
@@ -484,7 +496,7 @@ class ZeeClimate extends ZeePage {
   }
   render() {
     if (!this._hass) return;
-    this.shell("Climate", "Rooms", `<div class="hero">${this.room("Room 1", "sensor.temperature_sensor_temperature", "sensor.temperature_sensor_humidity", "sensor.temperature_sensor_battery")}${this.room("Room 2", "sensor.temperature_sensor_2_temperature", "sensor.temperature_sensor_2_humidity", "sensor.temperature_sensor_2_battery")}</div>`, "/local/myhome-dashboard-banners/myhome.png");
+    this.shell("Climate", "Rooms", `<div class="hero">${this.room("Room 1", "sensor.temperature_sensor_temperature", "sensor.temperature_sensor_humidity", "sensor.temperature_sensor_battery")}${this.room("Room 2", "sensor.temperature_sensor_2_temperature", "sensor.temperature_sensor_2_humidity", "sensor.temperature_sensor_2_battery")}</div>`, "/local/images/myhome.png");
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
   }
 }
@@ -534,71 +546,9 @@ class ZeeSystem extends ZeePage {
   }
 }
 
-class ZeeEnergy extends ZeePage {
-  tiles(items) {
-    return `<div class="facts">${items.filter(Boolean).map(([name, id, kind]) => `<button class="fact" type="button" data-id="${esc(id)}"><small>${esc(name)}</small><strong>${esc(paramValue(this._hass, id, kind))}</strong></button>`).join("")}</div>`;
-  }
-  block(title, items, sub) {
-    const body = this.tiles(items);
-    const heading = sub ? `<div class="psub">${esc(title)}</div>` : `<h3>${esc(title)}</h3>`;
-    return `<section class="${sub ? "pgroup" : "psec"}">${heading}${body}</section>`;
-  }
-  render() {
-    if (!this._hass) return;
-    const h = this._hass;
-    const todayExport = sensorMatch(h, (id) => id.includes("goodwe") && id.includes("export") && (id.includes("today") || id.includes("daily")) && !id.includes("total") && !id.includes("meter"));
-    const pv = (n) => [
-      ["Power", `sensor.goodwe_pv${n}_power`, 0],
-      ["Voltage", `sensor.goodwe_pv${n}_voltage`, 1],
-      ["Current", `sensor.goodwe_pv${n}_current`, 1],
-    ];
-    this.shell("Energy", "Goodwe", `<div class="plist">
-      <section class="psec"><h3>PV</h3>${this.tiles([["PV power", "sensor.goodwe_pv_power", 0]])}<div class="appliances">${this.block("PV1", pv(1), true)}${this.block("PV2", pv(2), true)}</div></section>
-      ${this.block("Inverter", [
-        ["Air temp", "sensor.goodwe_inverter_temperature_air", 1],
-        ["Rad temp", "sensor.goodwe_inverter_temperature_radiator", 1],
-        ["Work mode", "sensor.goodwe_work_mode", "text"],
-        ["Error", "sensor.goodwe_errors", "text"],
-      ])}
-      ${this.block("Battery", [
-        ["Power", "sensor.goodwe_battery_power", 0],
-        ["Voltage", "sensor.goodwe_battery_voltage", 1],
-        ["Current", "sensor.goodwe_battery_current", 1],
-        ["SoC", "sensor.goodwe_battery_state_of_charge", 0],
-        ["Max cell temp", "sensor.goodwe_battery_max_cell_temperature", 1],
-        ["Min cell temp", "sensor.goodwe_battery_min_cell_temperature", 1],
-        ["Max cell volt", "sensor.goodwe_battery_max_cell_voltage", 3],
-        ["Min cell volt", "sensor.goodwe_battery_min_cell_voltage", 3],
-      ])}
-      ${this.block("Grid", [
-        ["Power", "sensor.goodwe_active_power", 0],
-        ["Voltage", "sensor.goodwe_on_grid_l1_voltage", 1],
-        ["Current", "sensor.goodwe_meter_l1_current", 1],
-        ["Frequency", "sensor.goodwe_on_grid_l1_frequency", 2],
-      ])}
-      ${this.block("Statistics", [
-        ["Today generation", "sensor.goodwe_today_s_pv_generation", 2],
-        ["Total generation", "sensor.goodwe_total_pv_generation", 2],
-        ["Today load", "sensor.goodwe_today_load", 2],
-        ["Total load", "sensor.goodwe_total_load", 2],
-        ["Today grid import", "sensor.goodwe_today_energy_import", 2],
-        ["Total grid import", "sensor.goodwe_meter_total_energy_import", 2],
-        ["Today grid export", todayExport ? todayExport.entity_id : "sensor.goodwe_today_energy_export", 2],
-        ["Total grid export", "sensor.goodwe_meter_total_energy_export", 2],
-        ["Today battery charged", "sensor.goodwe_today_battery_charge", 2],
-        ["Today battery discharge", "sensor.goodwe_today_battery_discharge", 2],
-        ["Total battery charge", "sensor.goodwe_total_battery_charge", 2],
-        ["Total battery discharge", "sensor.goodwe_total_battery_discharge", 2],
-      ])}
-    </div>`, "/local/myhome-dashboard-banners/energy-v2.png");
-    this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
-  }
-}
-
 const tags = [
   ["zee-metric-board", ZeeMetrics],
   ["zee-live-parameters", ZeeLive],
-  ["zee-energy-board", ZeeEnergy],
   ["zee-cameras", ZeeCameras],
   ["zee-appliances", ZeeAppliances],
   ["zee-climate", ZeeClimate],

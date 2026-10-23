@@ -466,7 +466,7 @@ class ZeeClimate extends ZeePage {
   }
   render() {
     if (!this._hass) return;
-    this.shell("Climate", "Rooms", `<div class="hero">${this.room("Room 1", "sensor.temperature_sensor_temperature", "sensor.temperature_sensor_humidity", "sensor.temperature_sensor_battery")}${this.room("Room 2", "sensor.temperature_sensor_2_temperature", "sensor.temperature_sensor_2_humidity", "sensor.temperature_sensor_2_battery")}</div>`, "/local/myhome-dashboard-banners/myhome.png");
+    this.shell("Climate", "Rooms", `<div class="hero">${this.room("Room 1", "sensor.temperature_sensor_temperature", "sensor.temperature_sensor_humidity", "sensor.temperature_sensor_battery")}${this.room("Room 2", "sensor.temperature_sensor_2_temperature", "sensor.temperature_sensor_2_humidity", "sensor.temperature_sensor_2_battery")}</div>`, "/local/images/myhome.png");
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
   }
 }
@@ -563,9 +563,9 @@ class ZeeEnergy extends ZeePage {
         ["Total generation", "sensor.goodwe_total_pv_generation", 2],
         ["Today load", "sensor.goodwe_today_load", 2],
         ["Total load", "sensor.goodwe_total_load", 2],
-        ["Today grid import", "sensor.goodwe_today_energy_import", 2],
+        ["Today grid import", "sensor.goodwe_today_import_meter_calculated", 2],
         ["Total grid import", "sensor.goodwe_meter_total_energy_import", 2],
-        ["Today grid export", todayExport ? todayExport.entity_id : "sensor.goodwe_today_energy_export", 2],
+        ["Today grid export", "sensor.goodwe_today_export_meter_calculated", 2],
         ["Total grid export", "sensor.goodwe_meter_total_energy_export", 2],
         ["Today battery charged", "sensor.goodwe_today_battery_charge", 2],
         ["Today battery discharge", "sensor.goodwe_today_battery_discharge", 2],
