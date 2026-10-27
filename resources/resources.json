@@ -1,14 +1,6 @@
 [
   {
-    "url": "/hacsfiles/mini-graph-card/mini-graph-card-bundle.js",
-    "type": "module"
-  },
-  {
-    "url": "/hacsfiles/clock-weather-card/clock-weather-card.js",
-    "type": "module"
-  },
-  {
-    "url": "/local/custom-cards/zee-energy-card.js?v=22",
+    "url": "/local/zee-energy-card/custom-cards/zee-energy-card.js?v=29",
     "type": "module"
   }
 ]

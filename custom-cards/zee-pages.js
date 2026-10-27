@@ -352,7 +352,7 @@ class ZeeCameras extends ZeePage {
     const body = open
       ? `<div class="lightbox"><button class="back" id="cam-back" type="button">Back to cameras</button><div class="eyebrow">${esc(open[1])}</div><img data-cam="${esc(open[0])}" alt="${esc(open[1])}"></div>`
       : `<div class="cams">${cams.map(([id, name]) => `<button class="cam" data-cam-open="${esc(id)}" type="button" aria-label="Enlarge ${esc(name)}"><img data-cam="${esc(id)}" alt=""><span>${esc(name)}</span></button>`).join("")}</div>`;
-    this.shell("Cameras", "Security", body, "/local/myhome-dashboard-banners/security-v2.png");
+    this.shell("Cameras", "Security", body, "/local/zee-energy-card/images/myhome-dashboard-banners/security-v2.png");
     const back = this.shadowRoot.querySelector("#cam-back");
     if (back) back.onclick = () => { this._open = ""; this.refresh(); };
     this.shadowRoot.querySelectorAll("[data-cam-open]").forEach((button) => {
@@ -410,7 +410,7 @@ class ZeeAppliances extends ZeePage {
           <button data-id="sensor.zee_refrigerator_fridge_temperature" type="button"><div class="kicker">Fridge</div><div class="temp">${esc(reading(h, "sensor.zee_refrigerator_fridge_temperature", 1))}</div><div class="meta">Target ${esc(reading(h, "sensor.zee_refrigerator_fridge_target_temperature", 1))}</div><span class="chip${fridgeOpen ? " warn" : ""}">${esc(fridgeDoor)}</span></button>
           <button data-id="sensor.zee_refrigerator_freezer_temperature" type="button"><div class="kicker">Freezer</div><div class="temp">${esc(reading(h, "sensor.zee_refrigerator_freezer_temperature", 1))}</div><div class="meta">Target ${esc(reading(h, "sensor.zee_refrigerator_freezer_target_temperature", 1))}</div><span class="chip${freezerOpen ? " warn" : ""}">${esc(freezerDoor)}</span></button>
         </div>
-        <div class="meta">Mode ${esc(mode ? mode.state : "—")}</div>`, "/local/myhome-dashboard-banners/house.png")}
+        <div class="meta">Mode ${esc(mode ? mode.state : "—")}</div>`, "/local/zee-energy-card/images/myhome-dashboard-banners/house.png")}
       ${this.panel("Climate", "Midea AC", `
         <div class="row"><div><div class="kicker">${esc(ac?.attributes?.friendly_name || "Midea AC")}</div><div class="temp">${acOff || !Number.isFinite(acNow) ? "—" : acNow.toFixed(1) + "°C"}</div><div class="meta">${acOff ? "Unavailable" : esc(labelOf(ac.state))}</div></div><span class="chip${acOff ? " warn" : ""}">${acOff ? "Unavailable" : "Live"}</span></div>
         <div class="stepper"><button class="step" type="button" data-ac-step="-0.5"${acOff ? " disabled" : ""}>−</button><div><div class="kicker">Target</div><div class="target">${Number.isFinite(acTarget) ? acTarget.toFixed(1) + "°C" : "—"}</div></div><button class="step" type="button" data-ac-step="0.5"${acOff ? " disabled" : ""}>+</button></div>
@@ -466,7 +466,7 @@ class ZeeClimate extends ZeePage {
   }
   render() {
     if (!this._hass) return;
-    this.shell("Climate", "Rooms", `<div class="hero">${this.room("Room 1", "sensor.temperature_sensor_temperature", "sensor.temperature_sensor_humidity", "sensor.temperature_sensor_battery")}${this.room("Room 2", "sensor.temperature_sensor_2_temperature", "sensor.temperature_sensor_2_humidity", "sensor.temperature_sensor_2_battery")}</div>`, "/local/images/myhome.png");
+    this.shell("Climate", "Rooms", `<div class="hero">${this.room("Room 1", "sensor.temperature_sensor_temperature", "sensor.temperature_sensor_humidity", "sensor.temperature_sensor_battery")}${this.room("Room 2", "sensor.temperature_sensor_2_temperature", "sensor.temperature_sensor_2_humidity", "sensor.temperature_sensor_2_battery")}</div>`, "/local/zee-energy-card/images/myhome.png");
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
   }
 }
@@ -511,7 +511,7 @@ class ZeeSystem extends ZeePage {
         ["Export limit", "number.goodwe_grid_export_limit", 0],
         ["DoD on grid", "number.goodwe_depth_of_discharge_on_grid", 0],
         ["Errors", "sensor.goodwe_errors"],
-      ])}`, "/local/myhome-dashboard-banners/lab.png");
+      ])}`, "/local/zee-energy-card/images/myhome-dashboard-banners/lab.png");
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
   }
 }
@@ -572,7 +572,7 @@ class ZeeEnergy extends ZeePage {
         ["Total battery charge", "sensor.goodwe_total_battery_charge", 2],
         ["Total battery discharge", "sensor.goodwe_total_battery_discharge", 2],
       ])}
-    </div>`, "/local/myhome-dashboard-banners/energy-v2.png");
+    </div>`, "/local/zee-energy-card/images/myhome-dashboard-banners/energy-v2.png");
     this.shadowRoot.querySelectorAll("[data-id]").forEach((button) => { button.onclick = () => this.more(button.dataset.id); });
   }
 }

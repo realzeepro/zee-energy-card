@@ -61,10 +61,10 @@
               "home_path": "/dashboard-zee/home"
             },
             {
-              "type": "custom:accent-myhome-energy-statistics-v13"
+              "type": "custom:accent-myhome-power-metrics-v4"
             },
             {
-              "type": "custom:accent-myhome-power-metrics-v4"
+              "type": "custom:accent-myhome-energy-statistics-v13"
             },
             {
               "type": "custom:zee-metric-board",

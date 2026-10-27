@@ -20,6 +20,7 @@ for f in files:
   for label,pat in patterns.items():
    if re.search(pat,text):errors.append(f'{f.relative_to(root)}: possible {label} (review privately)')
   for rel in re.findall(r'/local/([a-zA-Z0-9_./-]+\.(?:png|svg|jpg|webp|js))',text):
+   if rel.startswith('zee-energy-card/'):rel=rel[len('zee-energy-card/'):]
    if not (root/rel).exists() and not (root/'images'/rel).exists():errors.append(f'{f.name}: missing asset {rel}')
   if f.suffix=='.js':
    for rel in re.findall(r'''\bimport\s*(?:\(\s*)?["'](\./[^"'?]+)''',text):
@@ -48,6 +49,7 @@ for destination in re.findall(r'/dashboard-zee/([a-z0-9_]+)',json.dumps(config))
  if destination not in paths:errors.append(f'Missing view {destination}')
 for resource in json.loads((root/'resources/resources.json').read_text()):
  rel=resource['url'][7:].split('?',1)[0]
+ if rel.startswith('zee-energy-card/'):rel=rel[len('zee-energy-card/'):]
  if resource['url'].startswith('/local/') and not (root/rel).exists():errors.append('Missing registered module '+resource['url'])
 if errors:print('\n'.join(errors));sys.exit(1)
 print(f'PASS: {len(config["views"])} views; imports, literal asset paths, navigation, resource paths and privacy patterns checked. Visual review and history review are separate.')

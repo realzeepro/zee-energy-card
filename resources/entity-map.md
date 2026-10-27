@@ -20,7 +20,7 @@ Mapped from the existing Zee skycard configuration. Cards read these entity IDs 
 | Today import | `sensor.goodwe_today_energy_import` | |
 | Today import (calculated) | `sensor.goodwe_today_import_meter_calculated` | Used by the home-scene GRID label and the Energy page. |
 | Today export (calculated) | `sensor.goodwe_today_export_meter_calculated` | Used by the home-scene GRID label and the Energy page. |
-| Lifetime PV | `sensor.goodwe_total_pv_generation` | |
+| Lifetime PV | `sensor.goodwe_total_pv_generation` | Used for Total generation on the Solar detail. |
 | Lifetime load | `sensor.goodwe_total_load` | |
 | Lifetime import | `sensor.goodwe_meter_total_energy_import` | |
 | Lifetime export | `sensor.goodwe_meter_total_energy_export` | No separate today-export sensor is configured. |
@@ -53,6 +53,7 @@ Mapped from the existing Zee skycard configuration. Cards read these entity IDs 
 | Running hours | `sensor.goodwe_hours_total` |
 | Export limit | `number.goodwe_grid_export_limit` |
 | Depth of discharge | `number.goodwe_depth_of_discharge_on_grid` |
+| Load % | computed | House load divided by the inverter rating (default 8 kW). Override with `inverter_kw` on the energy card. |
 
 ## House
 

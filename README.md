@@ -8,7 +8,9 @@ This is a dashboard bundle, not an installer. Copy the files into Home Assistant
 
 | Home | Energy |
 |:---:|:---:|
-| ![Home dashboard](screenshots/Home_Screenshot.png) | ![Energy dashboard](screenshots/Energy_Screenshot.png) |
+| ![Home dashboard](screenshots/Home_Screenshot.jpeg) | ![Energy dashboard](screenshots/Energy_Screenshot.jpeg) |
+| Appliances | System |
+| ![Appliances dashboard](screenshots/Appliance_Screenshot.png) | ![System dashboard](screenshots/System_Screenshot.png) |
 
 ## Views
 
@@ -17,7 +19,7 @@ Phone navigation (icon bar, hamburger opens the HA sidebar, hide/show button):
 | View | What it shows |
 |---|---|
 | Home | Weather-reactive house scene, forecast, live power |
-| Energy | Flow map, statistics, power chart, battery and PV strings |
+| Energy | Flow map with inverter load, power metrics with SOC and period controls, energy statistics, battery and PV panels |
 | Cameras | Four DVR channels |
 | Appliances | Fridge, freezer, Midea AC, water heater, AC smart plug, room temperature / humidity |
 | System | Inverter status and Home Assistant host gauges |
@@ -26,17 +28,27 @@ Dashboard URL path: `dashboard-zee`.
 
 ## Install
 
-1. Install these HACS items:
-   - [mini-graph-card](https://github.com/kalkih/mini-graph-card)
-   - [clock-weather-card](https://github.com/pkissling/clock-weather-card)
-   - [kiosk-mode](https://github.com/NemesisRE/kiosk-mode) integration — required to hide the Home Assistant header
-2. Copy `custom-cards/` to `/config/www/custom-cards/`.
-3. Copy the contents of `images/` into `/config/www/` so paths like `/local/myhome-scene-v1/` resolve. The artwork filenames are unchanged from the MyHome reference.
+1. Install [kiosk-mode](https://github.com/NemesisRE/kiosk-mode) from HACS, required to hide the Home Assistant header.
+2. Create `/config/www/zee-energy-card/` and copy `custom-cards/` into it, so the result is `/config/www/zee-energy-card/custom-cards/`.
+3. Copy the contents of `images/` into `/config/www/zee-energy-card/images/` so paths like `/local/zee-energy-card/images/myhome-scene-v1/` resolve. The artwork filenames are unchanged from the MyHome reference. Device thumbnails live in `images/devices/` and resolve as `/local/zee-energy-card/images/devices/<file>.png`.
+
+   Resulting layout:
+
+   ```text
+   /config/www/zee-energy-card/
+     custom-cards/
+     images/
+       devices/
+       myhome-dashboard-banners/
+       myhome-scene-v1/
+   ```
+
+   All dashboard assets now live under this single folder. The previous `/config/www/custom-cards/`, `/config/www/myhome-dashboard-banners/`, and `/config/www/myhome-scene-v1/` locations are no longer used.
 4. Add a Lovelace resource (Settings → Dashboards → Resources):
 
-   `/local/custom-cards/zee-energy-card.js?v=22` as a JavaScript module.
+   `/local/zee-energy-card/custom-cards/zee-energy-card.js?v=29` as a JavaScript module.
 
-   Also add the two HACS module URLs listed in `resources/resources.json` if they are not already registered.
+   No additional Lovelace module resources are required; `resources/resources.json` lists only this local card.
 5. Create a dashboard with URL `dashboard-zee`, take control, and paste `dashboard/zee-energy-dashboard.yaml` into the raw configuration editor.
 6. Hard-refresh the browser after the first load so the new module is picked up.
 
@@ -56,8 +68,8 @@ The normal header returns. Use the three-dot menu → **Edit dashboard** → thr
 
 The full list is in [resources/entity-map.md](resources/entity-map.md). Battery power and grid power are sign-flipped in the energy cards (`invert_battery_power` and `invert_grid_power` from the existing Zee card config). Positive battery power is treated as charging. Positive grid power is treated as import.
 
-There is no separate daily grid-export sensor in that config. Lifetime export uses `sensor.goodwe_meter_total_energy_export`. Self-sufficiency and self-consumption are calculated in-card from daily energy. Grid cost uses the PKR tariff and billing period saved in the Home scene settings; no external tariff or import-cost entity is required. Solar forecast and energy-learning cards from MyHome are not included.
+There is no separate daily grid-export sensor in that config. Lifetime export uses `sensor.goodwe_meter_total_energy_export`. Self-sufficiency and self-consumption are calculated in-card from daily energy. Grid cost uses the PKR tariff and billing period saved in the Home scene settings; no external tariff or import-cost entity is required. The Home battery charge/discharge ETA uses the battery capacity saved in the same settings (default 5.2 kWh). The Energy flow inverter tile shows house load against the 8 kW inverter rating; set `inverter_kw` on the energy card to override it. Solar forecast and energy-learning cards from MyHome are not included.
 
 ## Credit
 
-Scene artwork, energy flow, statistics, and power-metric cards come from the MyHome dashboard export. Third-party cards keep their own licenses.
+Scene artwork, energy flow, statistics, and power-metric cards come from the MyHome dashboard export. Third-party cards keep their own licenses. Device images are stored in `images/devices/`.
