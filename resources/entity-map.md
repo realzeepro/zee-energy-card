@@ -64,10 +64,15 @@ Mapped from the existing Zee skycard configuration. Cards read these entity IDs 
 | Room 1 temp / humidity / battery | `sensor.temperature_sensor_temperature`, `sensor.temperature_sensor_humidity`, `sensor.temperature_sensor_battery` |
 | Room 2 temp / humidity / battery | `sensor.temperature_sensor_2_temperature`, `sensor.temperature_sensor_2_humidity`, `sensor.temperature_sensor_2_battery` |
 | Cameras | `camera.embedded_net_dvr_channel_1` … `channel_4` |
+| Camera motion | `binary_sensor.embedded_net_dvr_channel_1_motion` … `channel_4_motion` |
 | Fridge / freezer | `sensor.zee_refrigerator_*`, `binary_sensor.zee_refrigerator_*_door` |
-| Water heater | `water_heater.151732606824523_water_heater` and `sensor.151732606824523_*` |
+| Water heater | `water_heater.151732606824523_water_heater` and `sensor.151732606824523_*`; alert after 60+ minutes on/heating. |
 | AC plug | `switch.ac_smart_plug_socket_1`, `sensor.ac_smart_plug_power`, `sensor.ac_smart_plug_voltage`, `sensor.ac_smart_plug_current` |
-| Host CPU / memory / disk / uptime / temps / ethernet | `sensor.localhost_*` |
+| Host CPU / memory / uptime / temps / ethernet | `sensor.localhost_*` |
+| ZimaOS HDD size / used / free / usage | `sensor.localhost_etc_hostname_disk_size`, `_used`, `_free`, `_usage` |
+| Media HDD size / used / free / usage | `sensor.localhost_media_hdd_disk_size`, `_used`, `_free`, `_usage` |
+| `/etc/hosts`, `/etc/resolv.conf` disks | Same filesystem as `/etc/hostname`; not shown separately. |
+| Containers active / CPU | Auto-detected from sensors containing `container` and `active` / `cpu` |
 
 ## Not mapped
 

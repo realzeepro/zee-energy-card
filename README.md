@@ -18,11 +18,13 @@ Phone navigation (icon bar, hamburger opens the HA sidebar, hide/show button):
 
 | View | What it shows |
 |---|---|
-| Home | Weather-reactive house scene, forecast, live power |
+| Home | Weather-reactive house scene, live insight ribbon, forecast, live power |
 | Energy | Flow map with inverter load, power metrics with SOC and period controls, energy statistics, battery and PV panels |
-| Cameras | Four DVR channels |
+| Cameras | Four DVR channels with motion indicators |
 | Appliances | Fridge, freezer, Midea AC, water heater, AC smart plug, room temperature / humidity |
-| System | Inverter status and Home Assistant host gauges |
+| System | Inverter status, host gauges, storage and containers |
+
+The Home insight ribbon shows active alerts only: grid outages, inverter errors, camera motion, open fridge/freezer doors, water heater on for over 60 minutes, and PV string underperformance. Multiple alerts rotate automatically with an `n/total` counter; tap the current alert to open the related entity. The ribbon hides when there are no alerts. Battery charge/discharge ETA is shown in the energy summary when active. The Cameras page marks active cameras with a red motion badge, and the Cameras nav tab shows a red dot while motion is active. Open a camera and use Motion history to view recent events in Home Assistant.
 
 Dashboard URL path: `dashboard-zee`.
 
@@ -46,7 +48,7 @@ Dashboard URL path: `dashboard-zee`.
    All dashboard assets now live under this single folder. The previous `/config/www/custom-cards/`, `/config/www/myhome-dashboard-banners/`, and `/config/www/myhome-scene-v1/` locations are no longer used.
 4. Add a Lovelace resource (Settings → Dashboards → Resources):
 
-   `/local/zee-energy-card/custom-cards/zee-energy-card.js?v=29` as a JavaScript module.
+   `/local/zee-energy-card/custom-cards/zee-energy-card.js?v=38` as a JavaScript module.
 
    No additional Lovelace module resources are required; `resources/resources.json` lists only this local card.
 5. Create a dashboard with URL `dashboard-zee`, take control, and paste `dashboard/zee-energy-dashboard.yaml` into the raw configuration editor.

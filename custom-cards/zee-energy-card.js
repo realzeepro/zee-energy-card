@@ -7,13 +7,13 @@ import "./energy-overview-core.js";
 import "./energy-overview.js";
 import "./energy-statistics.js?v=13";
 import "./energy-health-balance.js";
-import "./energy-flow-animation.js?v=15";
-import "./energy-flow-colours.js?v=15";
-import "./floating-nav-icons.js?v=13";
-import "./house-scene-base.js?v=15";
+import "./energy-flow-animation.js?v=24";
+import "./energy-flow-colours.js?v=24";
+import "./floating-nav-icons.js?v=14";
+import "./house-scene-base.js?v=24";
 import "./house-scene-variant-base.js?v=12";
-import "./house-scene.js?v=15";
-import "./house-weather.js?v=15";
+import "./house-scene.js?v=24";
+import "./house-weather.js?v=24";
 import "./house-weather-variant.js?v=12";
 import "./power-metrics.js?v=13";
 const CSS = `
@@ -49,7 +49,15 @@ h2{font-size:20px;font-weight:680;letter-spacing:-.4px}
 .cams{display:grid;grid-template-columns:1fr;gap:8px}
 .cam{position:relative;padding:0;border-radius:16px;overflow:hidden;background:#0d1218;min-height:110px;border:1px solid color-mix(in srgb,var(--accent) 16%,transparent)}
 .cam img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
-.cam span{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:750;padding:4px 8px;border-radius:999px;background:#000a}
+.cam .cam-label{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:750;padding:4px 8px;border-radius:999px;background:#000a}
+.cam .cam-motion{position:absolute;top:8px;right:8px;display:none;padding:3px 8px;border-radius:999px;background:#e07a5f;color:#fff;font-size:9px;font-weight:750;letter-spacing:.06em;text-transform:uppercase}
+.cam.motion{border-color:#e07a5f;box-shadow:0 0 0 1px #e07a5f55,0 0 18px #e07a5f22}
+.cam.recent{border-color:#f0b35a88}
+.cam.motion .cam-motion,.cam.recent .cam-motion{display:block}
+.cam.recent .cam-motion{background:#f0b35a;color:#1b2025}
+.cam-status{font-size:10px;color:var(--muted);margin:0 2px 8px;line-height:1.35}
+.cam-status.alert{color:#ff8f7a}
+.cam-status.recent{color:#f0b35a}
 .hero{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .hero button,.wide{width:100%;text-align:left;border-radius:18px;padding:14px;background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 10%,var(--base)),transparent);border:1px solid color-mix(in srgb,var(--accent) 14%,transparent)}
 .kicker{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:750}
@@ -71,13 +79,22 @@ h2{font-size:20px;font-weight:680;letter-spacing:-.4px}
 .group{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:750;margin:12px 0 6px}
 .lightbox{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;gap:12px;padding:16px;background:#0b0e12f2}
 .lightbox img{width:100%;flex:1;min-height:0;object-fit:contain;background:#000;border-radius:16px}
-.back{align-self:flex-start;min-height:40px;padding:0 14px;border-radius:999px;font-size:12px;font-weight:750;background:color-mix(in srgb,var(--accent) 22%,transparent)}
+.cam-actions{display:flex;flex-wrap:wrap;gap:8px;align-self:flex-start}.back{align-self:flex-start;min-height:40px;padding:0 14px;border-radius:999px;font-size:12px;font-weight:750;background:color-mix(in srgb,var(--accent) 22%,transparent)}
 .rings{display:flex;gap:16px;justify-content:space-around;margin:6px 0 14px}
 .ring{position:relative;width:104px;height:104px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p)*1%),color-mix(in srgb,var(--muted) 18%,transparent) 0)}
 .ring i{position:absolute;inset:9px;border-radius:50%;background:var(--base)}
 .ring b,.ring small{position:relative;z-index:1;grid-area:1/1}
 .ring b{font-size:18px;font-weight:700;transform:translateY(-8px)}
 .ring small{transform:translateY(14px);font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.disks{display:grid;gap:8px;margin:8px 0 0}
+.disk{padding:11px 12px;border-radius:16px;background:linear-gradient(115deg,color-mix(in srgb,var(--base) 78%,transparent),transparent);border:1px solid color-mix(in srgb,var(--accent) 12%,transparent)}
+.disk-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted)}
+.disk-head span{font-weight:650;color:var(--primary-text-color)}
+.disk-head b{font-size:16px;color:var(--disk,#62d9b5);font-weight:700}
+.disk-bar{height:8px;border-radius:6px;background:color-mix(in srgb,var(--muted) 12%,transparent);overflow:hidden;margin:8px 0 6px}
+.disk-bar i{display:block;height:100%;border-radius:6px;background:var(--disk,#62d9b5);transition:width .3s}
+.disk-meta{display:flex;flex-wrap:wrap;gap:3px 12px;font-size:9px;color:var(--muted)}
+.disk-meta span{white-space:nowrap}
 @media(max-width:390px){.cams,.hero,.facts{grid-template-columns:1fr}.temp{font-size:28px}}
 `;
 
@@ -298,7 +315,8 @@ class ZeeLive extends ZeePage {
       ${this.block("System", [
         ["CPU", "sensor.localhost_cpu_usage", 0],
         ["Memory", "sensor.localhost_memory_usage", 0],
-        ["Disk", stateOf(h, "sensor.localhost_etc_hostname_disk_usage") ? "sensor.localhost_etc_hostname_disk_usage" : "sensor.localhost_etc_hosts_disk_usage", 0],
+        ["ZimaOS HDD", "sensor.localhost_etc_hostname_disk_usage", 1],
+        ["Media HDD", "sensor.localhost_media_hdd_disk_usage", 1],
         ["Uptime", "sensor.localhost_uptime", "uptime"],
         ["Package temp", "sensor.localhost_package_id_0_temperature", 1],
       ], false, "/local/zee-energy-card/images/devices/system.png")}
@@ -349,6 +367,7 @@ class ZeeCameras extends ZeePage {
       this._key = key;
       this.draw(cams);
     }
+    this.motion(cams);
     this.streams(cams);
   }
   cameras() {
@@ -358,6 +377,54 @@ class ZeeCameras extends ZeePage {
       ["camera.embedded_net_dvr_channel_3", "Camera 3"],
       ["camera.embedded_net_dvr_channel_4", "Camera 4"],
     ];
+  }
+  motionEntity(cam) {
+    return cam[2] || `binary_sensor.${cam[0].split(".")[1]}_motion`;
+  }
+  shortDuration(ms) {
+    const s = Math.max(0, Math.round(ms / 1000));
+    if (s < 60) return s + "s";
+    const m = Math.floor(s / 60);
+    if (m < 60) return m + "m";
+    return Math.floor(m / 60) + "h" + (m % 60 ? " " + (m % 60) + "m" : "");
+  }
+  motionState(cam) {
+    const entity = this.motionEntity(cam);
+    const state = this._hass?.states?.[entity];
+    if (!state || ["unavailable", "unknown", "none", ""].includes(state.state)) return { entity, live: false, recent: false, age: null };
+    const live = state.state === "on";
+    const changed = Date.parse(state.last_changed);
+    const age = Number.isFinite(changed) ? Date.now() - changed : null;
+    const recent = !live && age !== null && age < 30000;
+    return { entity, live, recent, age };
+  }
+  motion(cams) {
+    if (!this.shadowRoot) return;
+    const states = cams.map((cam) => ({ cam, ...this.motionState(cam) }));
+    const live = states.filter((s) => s.live);
+    const recent = states.filter((s) => s.recent);
+    const status = this.shadowRoot.querySelector("#cam-status");
+    if (status) {
+      if (this._open) {
+        const open = states.find((s) => s.cam[0] === this._open);
+        status.classList.toggle("alert", !!open?.live);
+        status.classList.toggle("recent", !!open?.recent);
+        status.textContent = !open ? "" : open.live ? `Motion for ${open.age !== null ? this.shortDuration(open.age) : "now"}` : open.recent ? `Clear for ${open.age !== null ? this.shortDuration(open.age) : "now"}` : "Clear";
+      } else {
+        status.classList.toggle("alert", live.length > 0);
+        status.classList.toggle("recent", live.length === 0 && recent.length > 0);
+        status.textContent = live.length ? `Motion: ${live.map((s) => s.cam[1]).join(", ")}` : recent.length ? `Recent motion: ${recent.map((s) => s.cam[1]).join(", ")}` : "All cameras clear";
+      }
+    }
+    for (const s of states) {
+      const tile = [...this.shadowRoot.querySelectorAll("[data-cam-open]")].find((el) => el.dataset.camOpen === s.cam[0]);
+      if (!tile) continue;
+      tile.classList.toggle("motion", s.live);
+      tile.classList.toggle("recent", s.recent);
+      const badge = tile.querySelector(".cam-motion");
+      if (badge) badge.textContent = s.live ? "Motion" : s.recent ? "Recent" : "";
+      tile.setAttribute("aria-label", `Enlarge ${s.cam[1]}${s.live ? ", motion detected" : s.recent ? ", recent motion" : ""}`);
+    }
   }
   async streamUrl(id) {
     const cache = this._streams || (this._streams = {});
@@ -378,11 +445,13 @@ class ZeeCameras extends ZeePage {
   draw(cams) {
     const open = cams.find(([id]) => id === this._open);
     const body = open
-      ? `<div class="lightbox"><button class="back" id="cam-back" type="button">Back to cameras</button><div class="eyebrow">${esc(open[1])}</div><img data-cam="${esc(open[0])}" alt="${esc(open[1])}"></div>`
-      : `<div class="cams">${cams.map(([id, name]) => `<button class="cam" data-cam-open="${esc(id)}" type="button" aria-label="Enlarge ${esc(name)}"><img data-cam="${esc(id)}" alt=""><span>${esc(name)}</span></button>`).join("")}</div>`;
+      ? `<div class="lightbox"><div class="cam-actions"><button class="back" id="cam-back" type="button">Back to cameras</button><button class="back" id="cam-history" type="button">Motion history</button></div><div class="eyebrow">${esc(open[1])}</div><p class="cam-status" id="cam-status"></p><img data-cam="${esc(open[0])}" alt="${esc(open[1])}"></div>`
+      : `<p class="cam-status" id="cam-status"></p><div class="cams">${cams.map(([id, name]) => `<button class="cam" data-cam-open="${esc(id)}" type="button" aria-label="Enlarge ${esc(name)}"><img data-cam="${esc(id)}" alt=""><span class="cam-label">${esc(name)}</span><span class="cam-motion"></span></button>`).join("")}</div>`;
     this.shell("Cameras", "Security", body, "/local/zee-energy-card/images/myhome-dashboard-banners/security-v2.png");
     const back = this.shadowRoot.querySelector("#cam-back");
     if (back) back.onclick = () => { this._open = ""; this.refresh(); };
+    const history = this.shadowRoot.querySelector("#cam-history");
+    if (history && open) history.onclick = () => this.more(this.motionEntity(open));
     this.shadowRoot.querySelectorAll("[data-cam-open]").forEach((button) => {
       button.onclick = () => { this._open = button.dataset.camOpen; this.refresh(); };
     });
@@ -515,23 +584,43 @@ class ZeeSystem extends ZeePage {
   facts(items) {
     return `<div class="facts">${items.map(([name, id, digits]) => `<button class="fact" data-id="${esc(id)}"><small>${esc(name)}</small><strong>${esc(id === "sensor.localhost_uptime" ? uptimeText(this._hass, id) : reading(this._hass, id, digits))}</strong></button>`).join("")}</div>`;
   }
+  disk(title, base) {
+    const h = this._hass;
+    const num = (suffix) => {
+      const n = Number(stateOf(h, `${base}_${suffix}`)?.state);
+      return Number.isFinite(n) ? n : null;
+    };
+    const used = num("used"), total = num("size"), pct = num("usage");
+    const usage = pct !== null ? Math.max(0, Math.min(100, pct)) : used !== null && total ? Math.max(0, Math.min(100, used / total * 100)) : 0;
+    const color = usage >= 90 ? "#ff6b6b" : usage >= 75 ? "#f0b35a" : "#62d9b5";
+    const text = (suffix) => reading(h, `${base}_${suffix}`, 1);
+    return `<div class="disk" style="--disk:${color}"><div class="disk-head"><span>${esc(title)}</span><b>${usage.toFixed(1)}%</b></div><div class="disk-bar" role="progressbar" aria-label="${esc(title)} usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${usage.toFixed(1)}"><i style="width:${usage.toFixed(1)}%"></i></div><div class="disk-meta"><span>${text("used")} used</span><span>${text("free")} free</span><span>${text("size")} total</span></div></div>`;
+  }
   render() {
     if (!this._hass) return;
     const cpu = this.percent("sensor.localhost_cpu_usage");
     const mem = this.percent("sensor.localhost_memory_usage");
+    const containerSensor = (word) => sensorMatch(this._hass, (id, name) => (id.includes("containers") || name.includes("containers")) && (id.includes(word) || name.includes(word))) || sensorMatch(this._hass, (id, name) => (id.includes("container") || name.includes("container")) && (id.includes(word) || name.includes(word)));
+    const containersActive = containerSensor("active");
+    const containersCpu = containerSensor("cpu");
     const ring = (value, label) => `<div class="ring" style="--p:${value ?? 0}"><i></i><b>${value === null ? "—" : Math.round(value) + "%"}</b><small>${label}</small></div>`;
     this.shell("System", "Home Assistant host", `
       <div class="rings">${ring(cpu, "CPU")}${ring(mem, "Memory")}</div>
       <p class="sub" style="margin:0 2px 10px">Home Assistant host</p>
       ${this.facts([
         ["Uptime", "sensor.localhost_uptime", 0],
-        ["Disk", "sensor.localhost_etc_hostname_disk_usage", 0],
         ["Core 0", "sensor.localhost_core_0_temperature", 1],
         ["Core 1", "sensor.localhost_core_1_temperature", 1],
         ["Package", "sensor.localhost_package_id_0_temperature", 1],
         ["Ethernet RX", "sensor.localhost_eth0_rx", 1],
         ["Ethernet TX", "sensor.localhost_eth0_tx", 1],
       ])}
+      <p class="sub" style="margin:14px 2px 10px">Storage</p>
+      <div class="disks">${this.disk("ZimaOS HDD", "sensor.localhost_etc_hostname_disk")}${this.disk("Media HDD", "sensor.localhost_media_hdd_disk")}</div>
+      ${containersActive || containersCpu ? `<p class="sub" style="margin:14px 2px 10px">Containers</p>${this.facts([
+        containersActive ? ["Active", containersActive.entity_id, 0] : null,
+        containersCpu ? ["CPU usage", containersCpu.entity_id, 1] : null,
+      ].filter(Boolean))}` : ""}
       <p class="sub" style="margin:14px 2px 10px">Inverter</p>
       ${this.facts([
         ["Work mode", "sensor.goodwe_work_mode"],
